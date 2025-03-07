@@ -1,0 +1,13 @@
+[project]
+name = "internal-api"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+check_untyped_defs = true
