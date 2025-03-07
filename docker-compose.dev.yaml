@@ -13,6 +13,17 @@ x-service-defaults: &service-defaults
   extra_hosts:
     - "host.docker.internal:host-gateway"
 
+x-api-service-defaults: &api-service-defaults
+  <<: *service-defaults
+  healthcheck:
+    test: ["CMD", "/bin/bash", "/project/healthcheck.sh"]
+    interval: 360s
+    timeout: 1s
+    retries: 1
+    start_period: 3s
+  restart: always
+
+
 services:
   db:
     image: postgres:16.4-bookworm
@@ -24,15 +35,15 @@ services:
       - ./db:/docker-entrypoint-initdb.d
     <<: *logging
 
-  internal_api:
-    build: ./internal_api
+  private_api:
+    build: ./private_api
     volumes:
-      - "./internal_api:/project"
+      - "./private_api:/project"
       - "./shared:/libs/shared"
     env_file:
-      - ${INTERNAL_API_ENV_FILE}
+      - ${PRIVATE_API_ENV_FILE}
     depends_on:
       - db
     ports:
-      - ${INTERNAL_API_PORT}:8000
-    <<: *service-defaults
+      - ${PRIVATE_API_PORT}:8000
+    <<: *api-service-defaults

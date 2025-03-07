@@ -2,6 +2,10 @@ build:
 	@docker compose build
 
 
+build-dev:
+	@docker compose -f docker-compose.dev.yaml build
+
+
 run:
 	@docker compose up -d
 
@@ -16,6 +20,9 @@ stop:
 
 down:
 	@docker compose down
+
+down-dev:
+	@docker compose -f docker-compose.dev.yaml down
 
 
 restart:
