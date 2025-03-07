@@ -2,7 +2,13 @@
 name = "internal-api"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "alembic>=1.15.1",
+    "asyncpg>=0.30.0",
+    "fastapi>=0.115.11",
+    "pydantic>=2.10.6",
+    "sqlalchemy>=2.0.38",
+]
 
 [tool.mypy]
 python_version = "3.12"
