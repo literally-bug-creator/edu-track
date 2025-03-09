@@ -24,21 +24,21 @@ services:
       - ./db:/docker-entrypoint-initdb.d
     <<: *logging
 
-  internal_api:
-    build: ./internal_api
-    volumes:
-      - "./internal_api:/project"
-      - "./shared:/libs/shared"
-    env_file:
-      - ${INTERNAL_API_ENV_FILE}
-    depends_on:
-      - db
-    ports:
-      - ${INTERNAL_API_PORT}:8000
-    <<: *service-defaults
+#   internal_api:
+#     build: ./internal_api
+#     volumes:
+#       - "./internal_api:/project"
+#       - "./shared:/libs/shared"
+#     env_file:
+#       - ${INTERNAL_API_ENV_FILE}
+#     depends_on:
+#       - db
+#     ports:
+#       - ${INTERNAL_API_PORT}:8000
+#     <<: *service-defaults
 
 
-networks:
-  default:
-    name: ${EXTERNAL_NETWORK_NAME}
-    external: true
+# networks:
+#   default:
+#     name: ${EXTERNAL_NETWORK_NAME}
+#     external: true

@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+
 from enum import Enum
 
 
@@ -13,3 +14,4 @@ class SortParams(BaseModel):
 
     def __bool__(self):
         return self.field is not None
+
