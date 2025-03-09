@@ -1,12 +1,12 @@
 from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, exc
+from sqlalchemy import select, func, exc, Select
 from sqlalchemy.orm import make_transient
 from fastapi import Depends
 from typing import Iterable, Any, AsyncGenerator
 from database import get_session
 from database.models import Base
-from shared.schemas.common import *
+from shared.schemas.common import ListParams, PaginationParams, SortParams, SortOrder
 
 
 class BaseRepo[ModelT: Base]:
@@ -25,13 +25,13 @@ class BaseRepo[ModelT: Base]:
         async with self._start_session():
             return await self.session.execute(query)
 
-    async def commit(self):
+    async def commit(self) -> None:
         await self.session.commit()
 
-    async def rollback(self):
+    async def rollback(self) -> None:
         await self.session.rollback()
 
-    async def expunge(self, obj: ModelT):
+    async def expunge(self, obj: ModelT) -> None:
         async with self._start_session():
             self.session.expunge(obj)
 
@@ -40,7 +40,7 @@ class BaseRepo[ModelT: Base]:
         delattr(obj, "id")
         return await self.create(obj)
 
-    def add(self, obj: ModelT):
+    def add(self, obj: ModelT) -> None:
         self.session.add(obj)
 
     async def new(self, **data: Any) -> ModelT | None:
@@ -64,15 +64,15 @@ class BaseRepo[ModelT: Base]:
         async with self._start_session():
             return await self.filter_one(self.model.id == id)
 
-    async def filter(self, *where: Any, **filters: Any) -> Iterable[ModelT]:
+    async def filter(self, *where: Any, **filters: Any) -> Iterable[ModelT] | Any:
         query = self._get_query().where(*where).filter_by(**filters)
         return (await self.execute(query)).scalars()
 
-    async def filter_one(self, *where: Any, **filters: Any) -> ModelT | None:
+    async def filter_one(self, *where: Any, **filters: Any) -> ModelT | None | Any:
         query = self._get_query().where(*where).filter_by(**filters)
         return (await self.execute(query)).scalar_one_or_none()
 
-    async def count(self, **filters: Any) -> int:
+    async def count(self, **filters: Any) -> int | Any:
         query = self._get_query(func.count(self.model.id)).filter_by(**filters)
         return (await self.execute(query)).scalar_one()
 
@@ -89,7 +89,7 @@ class BaseRepo[ModelT: Base]:
             await self.session.refresh(obj)
         return obj
 
-    async def delete(self, obj: ModelT):
+    async def delete(self, obj: ModelT) -> None:
         async with self._start_session():
             await self.session.delete(obj)
             await self.commit()
@@ -103,7 +103,7 @@ class BaseRepo[ModelT: Base]:
         items = (await self.execute(query)).scalars()
         return items, total
 
-    def _apply_sort(self, query, params: SortParams) -> Any:
+    def _apply_sort(self, query: Select[Any], params: SortParams) -> Any:
         if params.field is None:
             return query
         field = getattr(self.model, params.field, None)
@@ -112,12 +112,12 @@ class BaseRepo[ModelT: Base]:
         sorting_field = field.asc() if params.order == SortOrder.Asc else field.desc()
         return query.order_by(sorting_field)
 
-    def _apply_pagination(self, query, params: PaginationParams) -> Any:
+    def _apply_pagination(self, query: Select[Any], params: PaginationParams) -> Any:
         limit = params.per_page
         offset = (params.page - 1) * limit
         return query.limit(limit).offset(offset)
 
-    def _get_query(self, select_data: Any = None):
+    def _get_query(self, select_data: Any = None) -> Select[Any]:
         if select_data is None:
             select_data = self.model
         return select(select_data)
