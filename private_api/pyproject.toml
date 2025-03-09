@@ -12,6 +12,7 @@ dependencies = [
     "uvicorn>=0.34.0",
 ]
 
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
