@@ -1,21 +1,15 @@
 from .base import Base
-from enum import IntEnum
+from sqlalchemy import String, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 
-class UserRole(IntEnum):
-    ADMIN = 0
-    TEACHER = 1
-    STUDENT = 2
-
-
-class RoleUserMixin:
-    role: Mapped[UserRole] = mapped_column()
-
-
 class AuthorizedUserMixin:
-    email: Mapped[str] = mapped_column(index=True)
+    email: Mapped[str] = mapped_column(String(255), index=True)
     hashed_password: Mapped[bytes] = mapped_column()
+
+    __table_args__ = (
+        Index("email_index", "email", postgresql_using="hash"),
+    )
 
 
 class NamedUserMixin:
@@ -24,5 +18,5 @@ class NamedUserMixin:
     last_name: Mapped[str] = mapped_column()
 
 
-class User(Base, NamedUserMixin, AuthorizedUserMixin, RoleUserMixin):
+class User(Base, NamedUserMixin, AuthorizedUserMixin):
     __tablename__ = "users"

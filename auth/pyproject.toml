@@ -1,0 +1,17 @@
+[project]
+name = "auth"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.15.1",
+    "fastapi>=0.115.11",
+    "pydantic-settings>=2.8.1",
+    "pydantic>=2.10.6",
+    "pyjwt[crypto]>=2.10.1",
+    "python-multipart>=0.0.20",
+    "uvicorn>=0.34.0",
+    "bcrypt>=4.3.0",
+    "aiofiles>=24.1.0",
+    "asyncpg>=0.30.0",
+    "sqlalchemy>=2.0.38",
+]
