@@ -1,7 +1,7 @@
 from fastapi import Depends, FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from schemas import forms, responses
+from schemas.auth import forms, responses
 from services.auth import AuthService
 
 from .config import EPath

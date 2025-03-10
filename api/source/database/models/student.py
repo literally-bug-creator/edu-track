@@ -8,6 +8,6 @@ class Student:
     id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
     )
-    group_id = Mapped[int | None] = mapped_column(
-        ForeignKey("groups.id", ondelete="SET NULL"), nullable=True, primary_key=True
+    group_id: Mapped[int | None] = mapped_column(
+        ForeignKey("groups.id", ondelete="SET NULL"), nullable=True, default=None, primary_key=True
     )

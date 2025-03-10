@@ -1,5 +1,5 @@
 from .base import BaseRepo
-from database.models.user import Admin
+from database.models import Admin
 
 
 class AdminRepo(BaseRepo):

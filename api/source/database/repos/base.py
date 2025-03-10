@@ -6,7 +6,9 @@ from fastapi import Depends
 from typing import Iterable, Any, AsyncGenerator
 from database import get_session
 from database.models import Base
-from shared.schemas.common import ListParams, PaginationParams, SortParams, SortOrder
+from schemas.common.list import ListParams
+from schemas.common.pagination import PaginationParams
+from schemas.common.sort import SortParams, SortOrder
 
 
 class BaseRepo[ModelT: Base]:

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from shared.schemas.auth.common import User
+from schemas.auth.common import User
 
 
 class Me(User): ...

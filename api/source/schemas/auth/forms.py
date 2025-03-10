@@ -1,7 +1,7 @@
 from fastapi import Form
 from dataclasses import dataclass
-from shared.schemas.common import BaseForm, convert_dc_to_pd
-from shared.schemas.auth.common import BaseUser
+from schemas.common.forms import BaseForm, convert_dc_to_pd
+from schemas.auth.common import BaseUser
 
 
 class Register(BaseForm, BaseUser):

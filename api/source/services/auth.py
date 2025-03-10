@@ -4,7 +4,7 @@ import jwt
 from database.repos.user import UserRepo
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials
-from schemas import forms, responses
+from schemas.auth import forms, responses
 from schemas.auth.common import User as UserScheme
 from settings import AuthSettings
 

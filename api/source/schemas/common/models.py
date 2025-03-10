@@ -1,4 +1,4 @@
-from shared.utils import to_camel_case, to_pascal_case
+from utils import to_camel_case, to_pascal_case
 from pydantic import BaseModel, ConfigDict
 
 

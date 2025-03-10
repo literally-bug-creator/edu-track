@@ -1,5 +1,4 @@
 from datetime import datetime
-from shared.schemas.auth.common import User
 from pydantic import BaseModel, ConfigDict
 
 
