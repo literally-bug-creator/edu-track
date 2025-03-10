@@ -5,15 +5,33 @@ x-logging: &logging
       max-size: "100m"
       max-file: "3"
 
+
 x-service-defaults: &service-defaults
-  <<: *logging
   stop_grace_period: 1s
   entrypoint:
     - "/project/entrypoint.sh"
   extra_hosts:
     - "host.docker.internal:host-gateway"
 
+
 services:
+  api:
+    build: ./api
+    restart: always
+    volumes:
+      - "./api:/project"
+    env_file:
+      - ${API_ENV_FILE}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - ${API_PORT}:8000
+    healthcheck:
+      test: ["CMD-SHELL", "netcat -z localhost 8000"]
+      start_period: 10s
+    <<: *service-defaults
+
   db:
     image: postgres:16.4-bookworm
     restart: always
@@ -22,23 +40,13 @@ services:
     volumes:
       - .docker_volumes/postgres_data:/var/lib/postgresql/data
       - ./db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -p 5432"]
+      start_period: 10s
     <<: *logging
 
-#   internal_api:
-#     build: ./internal_api
-#     volumes:
-#       - "./internal_api:/project"
-#       - "./shared:/libs/shared"
-#     env_file:
-#       - ${INTERNAL_API_ENV_FILE}
-#     depends_on:
-#       - db
-#     ports:
-#       - ${INTERNAL_API_PORT}:8000
-#     <<: *service-defaults
 
-
-# networks:
-#   default:
-#     name: ${EXTERNAL_NETWORK_NAME}
-#     external: true
+networks:
+  default:
+    name: ${EXTERNAL_NETWORK_NAME}
+    external: true

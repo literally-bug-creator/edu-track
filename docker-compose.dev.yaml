@@ -15,46 +15,21 @@ x-service-defaults: &service-defaults
 
 
 services:
-  auth:
-    build: ./auth
-    restart: on-failure
+  api:
+    build: ./api
+    restart: always
     volumes:
-      - "./auth:/project"
-      - "./shared:/libs/shared"
+      - "./api:/project"
     env_file:
-      - ${AUTH_ENV_FILE}
+      - ${API_ENV_FILE}
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - ${AUTH_PORT}:8000
+      - ${API_PORT}:8000
     healthcheck:
       test: ["CMD-SHELL", "netcat -z localhost 8000"]
-      interval: 25s
-      timeout: 3s
-      retries: 1
-      start_period: 5s
-    <<: *service-defaults
-
-  private_api:
-    build: ./private_api
-    restart: on-failure
-    volumes:
-      - "./private_api:/project"
-      - "./shared:/libs/shared"
-    env_file:
-      - ${PRIVATE_API_ENV_FILE}
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - ${PRIVATE_API_PORT}:8000
-    healthcheck:
-      test: ["CMD-SHELL", "netcat -z localhost 8000"]
-      interval: 25s
-      timeout: 1s
-      retries: 1
-      start_period: 3s
+      start_period: 10s
     <<: *service-defaults
 
   db:
@@ -67,8 +42,5 @@ services:
       - ./db:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -p 5432"]
-      interval: 25s
-      timeout: 1s
-      retries: 2
-      start_period: 7s
+      start_period: 10s
     <<: *logging
