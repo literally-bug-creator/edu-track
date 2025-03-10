@@ -10,6 +10,13 @@ class WorkType(IntEnum):
     LABORATORY_WORK = 2
     VERIFICATION_WORK = 3
     COURSE_WORK = 4
+    
+class MarkType(IntEnum):
+    ONE = 1
+    TWO = 2
+    THREE = 3
+    FOUR = 4
+    FIVE = 5
 
 
 class Marks(Base):
@@ -19,4 +26,4 @@ class Marks(Base):
     student_id: Mapped[int] = mapped_column()
     work_type: Mapped[WorkType] = mapped_column()
     date: Mapped[Date] = mapped_column(Date)
-    value: Mapped[int] = mapped_column()
+    value: Mapped[MarkType] = mapped_column()
