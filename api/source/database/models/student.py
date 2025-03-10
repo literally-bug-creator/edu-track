@@ -1,9 +1,13 @@
-from .user import User
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-class Student(User):
+
+class Student:
     __tablename__ = "students"
-    group_id = Mapped[int] = mapped_column(
-        ForeignKey("groups.id"), primary_key=True
+
+    id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    group_id = Mapped[int | None] = mapped_column(
+        ForeignKey("groups.id", ondelete="SET NULL"), nullable=True, primary_key=True
     )

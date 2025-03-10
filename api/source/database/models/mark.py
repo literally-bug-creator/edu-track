@@ -1,4 +1,4 @@
-from . import Base
+from .base import Base
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import Date, ForeignKey
 from enum import IntEnum
@@ -10,7 +10,8 @@ class WorkType(IntEnum):
     LABORATORY_WORK = 2
     VERIFICATION_WORK = 3
     COURSE_WORK = 4
-    
+
+
 class MarkType(IntEnum):
     ONE = 1
     TWO = 2
@@ -19,10 +20,10 @@ class MarkType(IntEnum):
     FIVE = 5
 
 
-class Marks(Base):
+class Mark(Base):
     __tablename__ = "marks"
 
-    discipline_id: Mapped[int] = mapped_column(ForeignKey("disciplines.id"))
+    discipline_id: Mapped[int] = mapped_column(ForeignKey("disciplines.id", ondelete="CASCADE"))
     student_id: Mapped[int] = mapped_column()
     work_type: Mapped[WorkType] = mapped_column()
     date: Mapped[Date] = mapped_column(Date)
