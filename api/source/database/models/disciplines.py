@@ -15,4 +15,4 @@ class Disciplines(Base):
     groups: Mapped[list["groups"]] = relationship(
         secondary="disciplines_groups", back_populates="disciplines"
     )
-    # teachers: Mapped[list["Teachers"]] = relationship(secondary="disciplines_teachers", back_populates="disciplines")
+    teachers: Mapped[list["teachers"]] = relationship(secondary="disciplines_teachers", back_populates="disciplines")
