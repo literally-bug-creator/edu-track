@@ -1,20 +1,19 @@
-from .base import Base
-from sqlalchemy import String, Index
+from sqlalchemy import Index, String
 from sqlalchemy.orm import Mapped, mapped_column
 
+from .base import Base
 
-class AuthorizedUserMixin:
-    email: Mapped[str] = mapped_column(String(255), index=True)
+
+class User(Base):
+    __tablename__ = "users"
+
+    email: Mapped[str] = mapped_column(
+        String(255), index=True
+    )  # TODO: Add smth like EmailStr
     hashed_password: Mapped[bytes] = mapped_column()
 
+    first_name: Mapped[str] = mapped_column(String(255))
+    middle_name: Mapped[str] = mapped_column(String(255))
+    last_name: Mapped[str] = mapped_column(String(255))
+
     __table_args__ = (Index("email_index", "email", postgresql_using="hash"),)
-
-
-class NamedUserMixin:
-    first_name: Mapped[str] = mapped_column()
-    middle_name: Mapped[str] = mapped_column()
-    last_name: Mapped[str] = mapped_column()
-
-
-class User(Base, NamedUserMixin, AuthorizedUserMixin):
-    __tablename__ = "users"
