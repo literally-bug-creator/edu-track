@@ -1,8 +1,8 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
+from .base import Base
 
-
-class Teacher:
+class Teacher(Base):
     __tablename__ = "teachers"
 
     id: Mapped[int] = mapped_column(

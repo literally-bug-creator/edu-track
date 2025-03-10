@@ -1,4 +1,4 @@
-from .base import Base
+from .base import Base, BaseMixin
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import Date, ForeignKey
 from enum import IntEnum
@@ -20,7 +20,7 @@ class MarkType(IntEnum):
     FIVE = 5
 
 
-class Mark(Base):
+class Mark(Base, BaseMixin):
     __tablename__ = "marks"
 
     discipline_id: Mapped[int] = mapped_column(ForeignKey("disciplines.id", ondelete="CASCADE"))

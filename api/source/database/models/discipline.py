@@ -1,9 +1,9 @@
-from .base import Base
+from .base import Base, BaseMixin
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import ForeignKey, String
 
 
-class Discipline(Base):
+class Discipline(Base, BaseMixin):
     __tablename__ = "disciplines"
 
     name: Mapped[str] = mapped_column(String(255))

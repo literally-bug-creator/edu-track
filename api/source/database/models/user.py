@@ -1,10 +1,10 @@
 from sqlalchemy import Index, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .base import Base
+from .base import Base, BaseMixin
 
 
-class User(Base):
+class User(Base, BaseMixin):
     __tablename__ = "users"
 
     email: Mapped[str] = mapped_column(

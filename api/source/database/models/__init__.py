@@ -1,4 +1,4 @@
-from .base import Base
+from .base import Base, BaseMixin
 from .user import User
 from .admin import Admin
 from .teacher import Teacher
@@ -12,4 +12,4 @@ from .discipline_group import DisciplineGroup
 from .discipline_teacher import DisciplineTeacher
 
 
-__all__ = ["Base", "User", "Admin", "Teacher", "Student", "Unit", "Track", "Group", "Discipline", "Mark", "DisciplineGroup", "DisciplineTeacher"]
+__all__ = ["Base", "BaseMixin", "User", "Admin", "Teacher", "Group", "Student", "Unit", "Track", "Discipline", "Mark", "DisciplineGroup", "DisciplineTeacher"]
