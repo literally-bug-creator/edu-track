@@ -1,4 +1,11 @@
-from .user import UserRepo
-
-
-__all__ = ["UserRepo"]
+from .user import UserRepo as UserRepo
+from .student import StudentRepo as StudentRepo
+from .admin import AdminRepo as AdminRepo
+from .teacher import TeacherRepo as TeacherRepo
+from .discipline import DisciplineRepo as DisciplineRepo
+from .discipline_group import DisciplineGroup as DisciplineGroup
+from .discipline_teacher import DisciplineTeacherRepo as DisciplineTeacherRepo
+from .mark import MarkRepo as MarkRepo
+from .group import GroupRepo as GroupRepo
+from .track import TrackRepo as TrackRepo
+from .unit import UnitRepo as UnitRepo
