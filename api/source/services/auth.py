@@ -1,10 +1,11 @@
 import bcrypt
 import jwt
+from config import AuthSettings
 from database.repos.user import UserRepo
 from fastapi import Depends, HTTPException, status
 from schemas.auth import forms, responses
 from schemas.auth.common import User as UserScheme
-from config import AuthSettings
+from schemas.auth.common import UserRole
 from utils.auth import read_key
 
 
@@ -20,9 +21,16 @@ class AuthService:
         if await self.repo.filter_one(email=form.email):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
+        role = UserRole.STUDENT
+
+        if await self.repo.is_empty():
+            role = UserRole.ADMIN
+
         hashed_password = self._hash_password(form.password)
         user_model = await self.repo.new(
-            **form.model_dump(exclude={"password"}), hashed_password=hashed_password
+            **form.model_dump(exclude={"password"}),
+            hashed_password=hashed_password,
+            role=role,
         )
 
         if user_model is None:
