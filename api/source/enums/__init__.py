@@ -4,4 +4,9 @@ from .semester_number import SemesterNumber
 from .work_type import WorkType
 
 
-__all__ = ["CourseNumber", "MarkType", "SemesterNumber", "WorkType",]
+__all__ = [
+    "CourseNumber",
+    "MarkType",
+    "SemesterNumber",
+    "WorkType",
+]
