@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, exc, Select
+from sqlalchemy import select, func, exc, Select, exists
 from sqlalchemy.orm import make_transient
 from fastapi import Depends
 from typing import Iterable, Any, AsyncGenerator
@@ -77,6 +77,12 @@ class BaseRepo[ModelT: Base]:
     async def count(self, **filters: Any) -> int | Any:
         query = self._get_query(func.count(self.model.id)).filter_by(**filters)
         return (await self.execute(query)).scalar_one()
+    
+    async def is_empty(self) -> bool:
+        async with self._start_session():
+            exists_query = select(exists().where(self.model.id.isnot(None)))
+            result = await self.session.scalar(exists_query)
+            return result
 
     async def update(self, obj: ModelT, **kwargs: Any) -> ModelT | None:
         async with self._start_session():
