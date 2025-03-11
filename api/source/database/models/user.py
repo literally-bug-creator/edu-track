@@ -1,6 +1,6 @@
-from sqlalchemy import Index, String, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
 from schemas.auth.common import UserRole
+from sqlalchemy import ForeignKey, Index, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, BaseMixin
 
@@ -16,8 +16,11 @@ class User(Base, BaseMixin):
     last_name: Mapped[str] = mapped_column(String(255))
 
     role: Mapped[UserRole] = mapped_column(default=UserRole.STUDENT, index=True)
-    group_id: Mapped[int] = mapped_column(
-        ForeignKey("groups.id", ondelete="SET NULL"), index=True
+    group_id: Mapped[int | None] = mapped_column(
+        ForeignKey("groups.id", ondelete="SET NULL"),
+        index=True,
+        nullable=True,
+        default=None,
     )
 
     __table_args__ = (Index("email_index", "email", postgresql_using="hash"),)

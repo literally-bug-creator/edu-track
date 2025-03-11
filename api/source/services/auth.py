@@ -16,9 +16,6 @@ class AuthService:
     ) -> None:
         self.repo = repo
         self.settings = AuthSettings()  # type: ignore
-        self.unauthorized_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED
-        )
 
     async def register(self, form: forms.Register) -> responses.Register:
         if await self.repo.filter_one(email=form.email):
@@ -42,7 +39,6 @@ class AuthService:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
         payload = UserScheme.model_validate(user_model).model_dump()
-        print(payload)
         private_key = await self._read_key(self.settings.private_key_path)
 
         token = jwt.encode(
@@ -61,10 +57,10 @@ class AuthService:
             payload = jwt.decode(token, public_key, [self.settings.algorithm])
             user_scheme: UserScheme = UserScheme.model_validate(payload)
         except jwt.InvalidTokenError:
-            raise self.unauthorized_exception
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
         if not await self.repo.filter_one(**user_scheme.model_dump()):
-            raise self.unauthorized_exception
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
         return responses.Me.model_validate(user_scheme.model_dump())
 
