@@ -18,7 +18,7 @@ class AuthService:
         self.settings = AuthSettings()  # type: ignore
 
     async def register(self, form: forms.Register) -> responses.Register:
-        if await self.repo.filter_one(email=form.email):
+        if await self.repo.filter_one(username=form.username):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
         role = UserRole.STUDENT
@@ -39,7 +39,7 @@ class AuthService:
         return responses.Register.model_validate(user_model)
 
     async def login(self, form: forms.Login) -> responses.Login:
-        if not (user_model := await self.repo.filter_one(email=form.email)):
+        if not (user_model := await self.repo.filter_one(username=form.username)):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
         if not self._is_password_valid(form.password, user_model.hashed_password):

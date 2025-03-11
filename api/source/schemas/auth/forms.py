@@ -5,7 +5,7 @@ from pydantic import EmailStr
 
 
 class Register(BaseForm):
-    email: EmailStr
+    username: EmailStr
     password: str
     first_name: str
     middle_name: str
@@ -14,7 +14,7 @@ class Register(BaseForm):
 
 @dataclass
 class _RegisterDC:
-    email: EmailStr = Form(...)
+    username: EmailStr = Form(...)
     password: str = Form(...)
     first_name: str = Form(...)
     middle_name: str = Form(...)
@@ -25,13 +25,13 @@ register = convert_dc_to_pd(_RegisterDC, Register)
 
 
 class Login(BaseForm):
-    email: EmailStr
+    username: EmailStr
     password: str
 
 
 @dataclass
 class _LoginDC:
-    email: EmailStr = Form(...)
+    username: EmailStr = Form(...)
     password: str = Form(...)
 
 

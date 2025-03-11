@@ -8,7 +8,7 @@ from .base import Base, BaseMixin
 class User(Base, BaseMixin):
     __tablename__ = "users"
 
-    email: Mapped[str] = mapped_column(index=True)
+    username: Mapped[str] = mapped_column(index=True)
     hashed_password: Mapped[bytes] = mapped_column()
 
     first_name: Mapped[str] = mapped_column(String(255))
@@ -23,4 +23,4 @@ class User(Base, BaseMixin):
         default=None,
     )
 
-    __table_args__ = (Index("email_index", "email", postgresql_using="hash"),)
+    __table_args__ = (Index("username_index", "username", postgresql_using="hash"),)

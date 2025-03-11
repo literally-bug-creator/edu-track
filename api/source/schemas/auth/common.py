@@ -9,9 +9,9 @@ class UserRole(IntEnum):
     STUDENT = 2
 
 
-class User(BaseModel):  # TODO: Make NameStr for first_name, middle_name and last_name
+class User(BaseModel):
     id: int
-    email: str
+    username: str
     first_name: str
     middle_name: str
     last_name: str
