@@ -27,25 +27,25 @@ class AuthService:
             role = UserRole.ADMIN
 
         hashed_password = self._hash_password(form.password)
-        user_model = await self.repo.new(
+        model = await self.repo.new(
             **form.model_dump(exclude={"password"}),
             hashed_password=hashed_password,
             role=role,
         )
 
-        if user_model is None:
+        if model is None:
             raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        return responses.Register.model_validate(user_model)
+        return responses.Register.model_validate(model)
 
     async def login(self, form: forms.Login) -> responses.Login:
-        if not (user_model := await self.repo.filter_one(username=form.username)):
+        if not (model := await self.repo.filter_one(username=form.username)):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
-        if not self._is_password_valid(form.password, user_model.hashed_password):
+        if not self._is_password_valid(form.password, model.hashed_password):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-        payload = UserScheme.model_validate(user_model).model_dump()
+        payload = UserScheme.model_validate(model, from_attributes=True).model_dump()
         private_key = await read_key(self.settings.private_key_path)
 
         token = jwt.encode(
@@ -61,14 +61,14 @@ class AuthService:
 
         try:
             payload = jwt.decode(token, public_key, [self.settings.algorithm])
-            user_scheme: UserScheme = UserScheme.model_validate(payload)
+            scheme: UserScheme = UserScheme.model_validate(payload)
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-        if not await self.repo.filter_one(**user_scheme.model_dump()):
+        if not await self.repo.filter_one(**scheme.model_dump()):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-        return responses.Me.model_validate(user_scheme.model_dump())
+        return responses.Me.model_validate(scheme.model_dump())
 
     def _hash_password(
         self,

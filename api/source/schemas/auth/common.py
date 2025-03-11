@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 from enum import IntEnum
 
 
@@ -17,8 +17,6 @@ class User(BaseModel):
     last_name: str
     role: UserRole
     group_id: int | None
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class TokenPayload(User):
