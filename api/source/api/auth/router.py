@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import OAuth2PasswordBearer
 from schemas.auth import forms, responses
 from services.auth import AuthService
 
@@ -7,7 +7,7 @@ from .config import EPath, PREFIX
 
 
 router = APIRouter(prefix=PREFIX, tags=["Auth"])
-http_bearer = HTTPBearer()
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl=PREFIX + EPath.LOGIN)
 
 
 @router.post(
@@ -56,7 +56,7 @@ async def login(
     },
 )
 async def get_me(
-    credentials: HTTPAuthorizationCredentials = Depends(http_bearer),
+    token: str = Depends(oauth2_bearer),
     service: AuthService = Depends(AuthService),
 ):
-    return await service.get_me(credentials)
+    return await service.get_me(token)
