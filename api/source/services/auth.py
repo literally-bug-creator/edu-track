@@ -1,12 +1,11 @@
-import aiofiles
 import bcrypt
 import jwt
 from database.repos.user import UserRepo
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials
 from schemas.auth import forms, responses
 from schemas.auth.common import User as UserScheme
-from settings import AuthSettings
+from config import AuthSettings
+from utils.auth import read_key
 
 
 class AuthService:
@@ -39,7 +38,7 @@ class AuthService:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
         payload = UserScheme.model_validate(user_model).model_dump()
-        private_key = await self._read_key(self.settings.private_key_path)
+        private_key = await read_key(self.settings.private_key_path)
 
         token = jwt.encode(
             payload,
@@ -49,9 +48,8 @@ class AuthService:
 
         return responses.Login(access_token=token, token_type="Bearer")
 
-    async def get_me(self, credentials: HTTPAuthorizationCredentials) -> responses.Me:
-        token = credentials.credentials
-        public_key = await self._read_key(self.settings.public_key_path)
+    async def get_me(self, token: str) -> responses.Me:
+        public_key = await read_key(self.settings.public_key_path)
 
         try:
             payload = jwt.decode(token, public_key, [self.settings.algorithm])
@@ -77,7 +75,3 @@ class AuthService:
         hashed_password: bytes,
     ) -> bool:
         return bcrypt.checkpw(password.encode(), hashed_password)
-
-    async def _read_key(self, path: str) -> str:
-        async with aiofiles.open(path, "r") as key_file:
-            return await key_file.read()
