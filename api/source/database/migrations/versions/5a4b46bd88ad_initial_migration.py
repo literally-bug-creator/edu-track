@@ -1,8 +1,8 @@
-"""Initial commit
+"""Initial migration
 
-Revision ID: 48853e68fd39
+Revision ID: 5a4b46bd88ad
 Revises: 
-Create Date: 2025-03-10 23:22:36.158653
+Create Date: 2025-03-11 11:24:20.550504
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '48853e68fd39'
+revision: str = '5a4b46bd88ad'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,28 +27,6 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_units_id'), 'units', ['id'], unique=False)
-    op.create_table('users',
-    sa.Column('email', sa.String(length=255), nullable=False),
-    sa.Column('hashed_password', sa.LargeBinary(), nullable=False),
-    sa.Column('first_name', sa.String(length=255), nullable=False),
-    sa.Column('middle_name', sa.String(length=255), nullable=False),
-    sa.Column('last_name', sa.String(length=255), nullable=False),
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index('email_index', 'users', ['email'], unique=False, postgresql_using='hash')
-    op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=False)
-    op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
-    op.create_table('admins',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('teachers',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.create_table('tracks',
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('unit_id', sa.Integer(), nullable=False),
@@ -60,8 +38,8 @@ def upgrade() -> None:
     op.create_table('disciplines',
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('track_id', sa.Integer(), nullable=False),
-    sa.Column('course_number', sa.Integer(), nullable=False),
-    sa.Column('semester_number', sa.Integer(), nullable=False),
+    sa.Column('course_number', sa.Enum('FIRST', 'SECOND', 'THIRD', 'FOURTH', 'FIFTH', name='coursenumber'), nullable=False),
+    sa.Column('semester_number', sa.Enum('FIRST', 'SECOND', name='semesternumber'), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['track_id'], ['tracks.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -82,41 +60,57 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['group_id'], ['groups.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('discipline_id', 'group_id')
     )
+    op.create_table('users',
+    sa.Column('email', sa.String(), nullable=False),
+    sa.Column('hashed_password', sa.LargeBinary(), nullable=False),
+    sa.Column('first_name', sa.String(length=255), nullable=False),
+    sa.Column('middle_name', sa.String(length=255), nullable=False),
+    sa.Column('last_name', sa.String(length=255), nullable=False),
+    sa.Column('role', sa.Enum('ADMIN', 'TEACHER', 'STUDENT', name='userrole'), nullable=False),
+    sa.Column('group_id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['group_id'], ['groups.id'], ondelete='SET NULL'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index('email_index', 'users', ['email'], unique=False, postgresql_using='hash')
+    op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=False)
+    op.create_index(op.f('ix_users_group_id'), 'users', ['group_id'], unique=False)
+    op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
+    op.create_index(op.f('ix_users_role'), 'users', ['role'], unique=False)
     op.create_table('disciplines_teachers',
     sa.Column('discipline_id', sa.Integer(), nullable=False),
     sa.Column('teacher_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['discipline_id'], ['disciplines.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['teacher_id'], ['teachers.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('discipline_id')
+    sa.ForeignKeyConstraint(['teacher_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('discipline_id', 'teacher_id')
     )
     op.create_table('marks',
     sa.Column('discipline_id', sa.Integer(), nullable=False),
     sa.Column('student_id', sa.Integer(), nullable=False),
     sa.Column('work_type', sa.Enum('HOMEWORK', 'PRACTICAL_WORK', 'LABORATORY_WORK', 'VERIFICATION_WORK', 'COURSE_WORK', name='worktype'), nullable=False),
-    sa.Column('date', sa.Date(), nullable=False),
-    sa.Column('value', sa.Enum('ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', name='marktype'), nullable=False),
+    sa.Column('type', sa.Enum('ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', name='marktype'), nullable=False),
+    sa.Column('date', sa.DateTime(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['discipline_id'], ['disciplines.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['student_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_marks_id'), 'marks', ['id'], unique=False)
-    op.create_table('students',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('group_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['group_id'], ['groups.id'], ondelete='SET NULL'),
-    sa.ForeignKeyConstraint(['id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id', 'group_id')
-    )
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_table('students')
     op.drop_index(op.f('ix_marks_id'), table_name='marks')
     op.drop_table('marks')
     op.drop_table('disciplines_teachers')
+    op.drop_index(op.f('ix_users_role'), table_name='users')
+    op.drop_index(op.f('ix_users_id'), table_name='users')
+    op.drop_index(op.f('ix_users_group_id'), table_name='users')
+    op.drop_index(op.f('ix_users_email'), table_name='users')
+    op.drop_index('email_index', table_name='users', postgresql_using='hash')
+    op.drop_table('users')
     op.drop_table('disciplines_groups')
     op.drop_index(op.f('ix_groups_id'), table_name='groups')
     op.drop_table('groups')
@@ -124,12 +118,6 @@ def downgrade() -> None:
     op.drop_table('disciplines')
     op.drop_index(op.f('ix_tracks_id'), table_name='tracks')
     op.drop_table('tracks')
-    op.drop_table('teachers')
-    op.drop_table('admins')
-    op.drop_index(op.f('ix_users_id'), table_name='users')
-    op.drop_index(op.f('ix_users_email'), table_name='users')
-    op.drop_index('email_index', table_name='users', postgresql_using='hash')
-    op.drop_table('users')
     op.drop_index(op.f('ix_units_id'), table_name='units')
     op.drop_table('units')
     # ### end Alembic commands ###

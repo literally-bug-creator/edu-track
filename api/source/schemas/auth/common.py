@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict
+from enum import IntEnum
 
 
 class BaseUser(BaseModel):
@@ -13,6 +14,12 @@ class BaseUser(BaseModel):
 
 class User(BaseUser):
     id: int
+
+
+class UserRole(IntEnum):
+    ADMIN = 0
+    TEACHER = 1
+    STUDENT = 2
 
 
 class TokenPayload(User):
