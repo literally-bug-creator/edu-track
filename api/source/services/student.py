@@ -1,7 +1,8 @@
-from database.repos import StudentRepo, MarkRepo
+from database.repos import StudentRepo, MarkRepo, DisciplineGroupRepo
 from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
 from schemas.marks.common import Mark
+from schemas.discipline.common import Discipline
 from schemas.student import bodies, params, responses
 from schemas.student.common import Student
 # from utils.auth import get_user_by_min_role, get_user_has_role
@@ -12,9 +13,11 @@ class StudentService:
         self,
         repo: StudentRepo = Depends(StudentRepo),
         mark_repo: MarkRepo = Depends(MarkRepo),
+        disc_group_repo: DisciplineGroupRepo = Depends(DisciplineGroupRepo),
     ) -> None:
         self.repo = repo
         self.mark_repo = mark_repo
+        self.disc_group_repo = disc_group_repo
 
     async def read(
         self,
@@ -94,8 +97,32 @@ class StudentService:
                 total=0,
             )
 
-        items, total = await self.mark_repo.list(params=pms)
+        items, total = await self.mark_repo.list(
+            params=pms,
+            student_id=pms.student_id,
+            **pms.filters.model_dump(exclude_none=True),
+        )
         return responses.ListMarks(
             items=[Mark.model_validate(obj, from_attributes=True) for obj in items],
+            total=total,
+        )
+    
+    async def list_disciplines(
+        self,
+        pms: params.ListDisciplines,
+        user: User,
+    ) -> responses.ListDisciplines:
+        if (user.role == UserRole.STUDENT) and (user.id != pms.student_id):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+        
+        if not (student := await self.repo.filter_one(id=pms.student_id)):
+            return responses.ListDisciplines(items=[], total=0)
+
+        items, total = await self.disc_group_repo.list(
+            params=pms,
+            group_id=student.group_id,
+        )
+        return responses.ListDisciplines(
+            items=[Discipline.model_validate(obj, from_attributes=True) for obj in items],
             total=total,
         )

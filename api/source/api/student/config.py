@@ -10,3 +10,4 @@ class EPath(StrEnum):
     DELETE = "/{id}"
     LIST = ""
     LIST_MARKS = "/{id}/marks"
+    LIST_DISCIPLINES = "/{id}/disciplines"

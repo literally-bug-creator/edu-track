@@ -19,6 +19,11 @@ class Delete(BaseModel):
 class List(ListParams):
     pass
 
+
 class ListMarks(ListParams):
     student_id: int = Path()
     filters: MarkFilters = Depends()
+
+
+class ListDisciplines(ListParams):
+    student_id: int = Path()
