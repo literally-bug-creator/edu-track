@@ -30,7 +30,9 @@ class GroupService:
         return responses.Read(item=scheme)
 
     async def update(self, pms: params.Update, body: bodies.Update) -> responses.Update:
-        if not (model := await self.repo.filter_one(**pms.model_dump(exclude_none=None))):
+        if not (
+            model := await self.repo.filter_one(**pms.model_dump(exclude_none=None))
+        ):
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
         upd_model = await self.repo.update(model, **body.model_dump())
