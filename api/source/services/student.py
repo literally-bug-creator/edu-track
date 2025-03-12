@@ -88,10 +88,10 @@ class StudentService:
         pms: params.ListMarks,
         user: User,
     ) -> responses.ListMarks:
-        if (user.role == UserRole.STUDENT) and (user.id != pms.student_id):
+        if (user.role == UserRole.STUDENT) and (user.id != pms.id):
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
-        if not (await self.repo.filter_one(id=pms.student_id)):
+        if not (await self.repo.filter_one(id=pms.id)):
             return responses.ListMarks(
                 items=[],
                 total=0,
@@ -99,7 +99,7 @@ class StudentService:
 
         items, total = await self.mark_repo.list(
             params=pms,
-            student_id=pms.student_id,
+            student_id=pms.id,
             **pms.filters.model_dump(exclude_none=True),
         )
         return responses.ListMarks(
@@ -112,10 +112,10 @@ class StudentService:
         pms: params.ListDisciplines,
         user: User,
     ) -> responses.ListDisciplines:
-        if (user.role == UserRole.STUDENT) and (user.id != pms.student_id):
+        if (user.role == UserRole.STUDENT) and (user.id != pms.id):
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
         
-        if not (student := await self.repo.filter_one(id=pms.student_id)):
+        if not (student := await self.repo.filter_one(id=pms.id)):
             return responses.ListDisciplines(items=[], total=0)
 
         items, total = await self.disc_group_repo.list(

@@ -21,9 +21,9 @@ class List(ListParams):
 
 
 class ListMarks(ListParams):
-    student_id: int = Path()
+    id: int = Path()
     filters: MarkFilters = Depends()
 
 
 class ListDisciplines(ListParams):
-    student_id: int = Path()
+    id: int = Path()
