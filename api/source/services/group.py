@@ -3,14 +3,14 @@ from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
 from schemas.group import bodies, params, responses
 from schemas.group.common import Group
-from utils.auth import get_permitted_user
+from utils.auth import get_user_by_min_role
 
 
 class GroupService:
     def __init__(
         self,
         repo: GroupRepo = Depends(GroupRepo),
-        user: User = Depends(get_permitted_user(UserRole.ADMIN)),
+        user: User = Depends(get_user_by_min_role(UserRole.ADMIN)),
     ) -> None:
         self.repo = repo
         self.user = user

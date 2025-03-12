@@ -42,11 +42,20 @@ async def get_user(
     return user_scheme
 
 
-def get_permitted_user(min_role: UserRole | None = None) -> Callable:
+async def get_user_by_min_role(min_role: UserRole | None = None) -> Callable:
     async def dep(user: User = Depends(get_user)) -> User:
-        print(user)
         if (min_role is not None) and (user.role > min_role):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        return user
+
+    return dep
+
+
+async def get_user_has_role(roles: list[UserRole]) -> Callable:
+    async def dep(user: User = Depends(get_user)) -> User:
+        if user.role not in roles:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
         return user
 
     return dep

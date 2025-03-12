@@ -4,7 +4,7 @@ from schemas.auth.common import User, UserRole
 from schemas.marks.common import Mark
 from schemas.student import bodies, params, responses
 from schemas.student.common import Student
-from utils.auth import get_permitted_user
+from utils.auth import get_user_by_min_role, get_user_has_role
 
 
 class StudentService:
@@ -16,7 +16,14 @@ class StudentService:
         self.repo = repo
         self.mark_repo = mark_repo
 
-    async def read(self, pms: params.Read) -> responses.Read:
+    async def read(
+        self,
+        pms: params.Read,
+        user: User = Depends(get_user_has_role([UserRole.ADMIN, UserRole.STUDENT])),
+    ) -> responses.Read:
+        if (user.role == UserRole.STUDENT) and (user.id != pms.id):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
         if not (
             model := await self.repo.filter_one(
                 **pms.model_dump(), role=UserRole.STUDENT
@@ -31,7 +38,7 @@ class StudentService:
         self,
         pms: params.Update,
         body: bodies.Update,
-        user: User = Depends(get_permitted_user(UserRole.ADMIN)),
+        user: User = Depends(get_user_by_min_role(UserRole.ADMIN)),
     ) -> responses.Update:
         if not (
             model := await self.repo.filter_one(
@@ -51,7 +58,7 @@ class StudentService:
     async def delete(
         self,
         pms: params.Delete,
-        user: User = Depends(get_permitted_user(UserRole.ADMIN)),
+        user: User = Depends(get_user_by_min_role(UserRole.ADMIN)),
     ) -> None:
         if not (
             model := await self.repo.filter_one(
@@ -65,7 +72,7 @@ class StudentService:
     async def list(
         self,
         pms: params.List,
-        user: User = Depends(get_permitted_user(UserRole.ADMIN)),
+        user: User = Depends(get_user_by_min_role(UserRole.ADMIN)),
     ) -> responses.List:
         items, total = await self.repo.list(params=pms, role=UserRole.STUDENT)
         return responses.List(
@@ -73,11 +80,14 @@ class StudentService:
             total=total,
         )
 
-    async def list_marks(  # TODO: Permite user
+    async def list_marks(
         self,
         pms: params.ListMarks,
-        user: User = Depends(get_permitted_user(UserRole.ADMIN)),
+        user: User = Depends(get_user_has_role([UserRole.ADMIN, UserRole.STUDENT])),
     ) -> responses.ListMarks:
+        if (user.role == UserRole.STUDENT) and (user.id != pms.student_id):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
         if not (await self.repo.filter_one(pms.student_id)):
             return responses.ListMarks(
                 items=[],

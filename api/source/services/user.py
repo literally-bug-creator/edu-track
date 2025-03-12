@@ -2,14 +2,14 @@ from database.repos import UserRepo
 from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
 from schemas.user import bodies, params, responses
-from utils.auth import get_permitted_user
+from utils.auth import get_user_by_min_role
 
 
 class UserService:
     def __init__(
         self,
         repo: UserRepo = Depends(UserRepo),
-        user: User = Depends(get_permitted_user(UserRole.ADMIN)),
+        user: User = Depends(get_user_by_min_role(UserRole.ADMIN)),
     ) -> None:
         self.repo = repo
         self.user = user
