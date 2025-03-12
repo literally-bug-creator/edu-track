@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from fastapi.security import OAuth2PasswordBearer
+from utils.auth import oauth2_bearer
 from schemas.auth import forms, responses
 from services.auth import AuthService
 
@@ -7,7 +7,7 @@ from .config import EPath, PREFIX
 
 
 router = APIRouter(prefix=PREFIX, tags=["Auth"])
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl=PREFIX + EPath.LOGIN)
+# oauth2_bearer = OAuth2PasswordBearer(tokenUrl=PREFIX + EPath.LOGIN) # TODO: Some fixes for all-api auth
 
 
 @router.post(

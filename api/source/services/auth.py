@@ -36,7 +36,7 @@ class AuthService:
         if model is None:
             raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        return responses.Register.model_validate(model)
+        return responses.Register.model_validate(model, from_attributes=True)
 
     async def login(self, form: forms.Login) -> responses.Login:
         if not (model := await self.repo.filter_one(username=form.username)):

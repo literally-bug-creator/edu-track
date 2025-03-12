@@ -5,9 +5,12 @@ import jwt
 from config import AuthSettings
 from database.repos import UserRepo
 from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import OAuth2PasswordBearer
+from api.auth.config import PREFIX, EPath
 from schemas.auth.common import User, UserRole
 
 auth_settings = AuthSettings()
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl=PREFIX + EPath.LOGIN)
 
 
 async def read_key(path: str):
@@ -23,7 +26,7 @@ async def get_auth_token(request: Request) -> str:
 
 
 async def get_user(
-    token: str | None = Depends(get_auth_token), repo: UserRepo = Depends(UserRepo)
+    token: str | None = Depends(oauth2_bearer), repo: UserRepo = Depends(UserRepo)
 ) -> User:
     public_key = await read_key(auth_settings.public_key_path)
 
