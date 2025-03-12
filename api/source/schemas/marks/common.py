@@ -14,3 +14,4 @@ class Mark(BaseModel):
 
 class MarkFilters(BaseModel):
     discipline_id: int | None = Query(None)
+    work_type: WorkType | None = Query(None)
