@@ -29,7 +29,6 @@ async def get_user(
     token: str = Depends(oauth2_bearer), repo: UserRepo = Depends(UserRepo)
 ) -> User:
     public_key = await read_key(auth_settings.public_key_path)
-
     try:
         payload = jwt.decode(token, public_key, [auth_settings.algorithm])
         user_scheme: User = User.model_validate(payload)

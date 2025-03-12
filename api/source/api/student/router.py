@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, status
 from schemas.student import params, bodies, responses
 from services.student import StudentService
+from schemas.auth.common import User, UserRole
+from utils.auth import get_user_has_role, get_user_by_min_role
 
 from .config import EPath, PREFIX
 
@@ -20,9 +22,10 @@ router = APIRouter(prefix=PREFIX, tags=["Student"])
 )
 async def read(
     pms: params.Read = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN, UserRole.STUDENT])),
     service: StudentService = Depends(StudentService),
 ):
-    return await service.read(pms)
+    return await service.read(pms, user)
 
 
 @router.patch(
@@ -38,9 +41,10 @@ async def read(
 async def update(
     pms: params.Update = Depends(),
     body: bodies.Update = Depends(),
+    user: User = Depends(get_user_by_min_role(UserRole.ADMIN)),
     service: StudentService = Depends(StudentService),
 ):
-    return await service.update(pms, body)
+    return await service.update(pms, body, user)
 
 
 @router.delete(
@@ -55,9 +59,10 @@ async def update(
 )
 async def delete(
     pms: params.Delete = Depends(),
+    user: User = Depends(get_user_by_min_role(UserRole.ADMIN)),
     service: StudentService = Depends(StudentService),
 ):
-    return await service.delete(pms)
+    return await service.delete(pms, user)
 
 
 @router.get(
@@ -71,9 +76,10 @@ async def delete(
 )
 async def list(
     pms: params.List = Depends(),
+    user: User = Depends(get_user_by_min_role(UserRole.ADMIN)),
     service: StudentService = Depends(StudentService),
 ):
-    return await service.list(pms)
+    return await service.list(pms, user)
 
 
 @router.get(
@@ -87,6 +93,7 @@ async def list(
 )
 async def list_marks(
     pms: params.ListMarks = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN, UserRole.STUDENT])),
     service: StudentService = Depends(StudentService),
 ):
-    return await service.list_marks(pms)
+    return await service.list_marks(pms, user)
