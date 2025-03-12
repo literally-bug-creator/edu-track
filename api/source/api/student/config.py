@@ -9,3 +9,4 @@ class EPath(StrEnum):
     UPDATE = "/{id}"
     DELETE = "/{id}"
     LIST = ""
+    LIST_MARKS = "/{id}/marks"

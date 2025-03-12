@@ -74,3 +74,19 @@ async def list(
     service: StudentService = Depends(StudentService),
 ):
     return await service.list(pms)
+
+
+@router.get(
+    path=EPath.LIST_MARKS,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {"model": responses.ListMarks},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+        status.HTTP_503_SERVICE_UNAVAILABLE: {},
+    },
+)
+async def list_marks(
+    pms: params.ListMarks = Depends(),
+    service: StudentService = Depends(StudentService),
+):
+    return await service.list_marks(pms)

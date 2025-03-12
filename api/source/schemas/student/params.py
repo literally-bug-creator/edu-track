@@ -17,3 +17,6 @@ class Delete(BaseModel):
 
 class List(ListParams):
     pass
+
+class ListMarks(ListParams):
+    student_id: int = Path()

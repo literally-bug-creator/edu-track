@@ -1,6 +1,7 @@
-from database.repos import StudentRepo
+from database.repos import StudentRepo, MarkRepo
 from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
+from schemas.marks.common import Mark
 from schemas.student import bodies, params, responses
 from schemas.student.common import Student
 from utils.auth import get_permitted_user
@@ -10,8 +11,10 @@ class StudentService:
     def __init__(
         self,
         repo: StudentRepo = Depends(StudentRepo),
+        mark_repo: MarkRepo = Depends(MarkRepo),
     ) -> None:
         self.repo = repo
+        self.mark_repo = mark_repo
 
     async def read(self, pms: params.Read) -> responses.Read:
         if not (
@@ -67,5 +70,22 @@ class StudentService:
         items, total = await self.repo.list(params=pms, role=UserRole.STUDENT)
         return responses.List(
             items=[Student.model_validate(obj, from_attributes=True) for obj in items],
+            total=total,
+        )
+
+    async def list_marks(  # TODO: Permite user
+        self,
+        pms: params.ListMarks,
+        user: User = Depends(get_permitted_user(UserRole.ADMIN)),
+    ) -> responses.ListMarks:
+        if not (await self.repo.filter_one(pms.student_id)):
+            return responses.ListMarks(
+                items=[],
+                total=0,
+            )
+
+        items, total = await self.mark_repo.list(params=pms)
+        return responses.ListMarks(
+            items=[Mark.model_validate(obj, from_attributes=True) for obj in items],
             total=total,
         )
