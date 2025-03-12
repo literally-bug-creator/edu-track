@@ -8,6 +8,10 @@ class Read(BaseModel):
     id: int = Path()
 
 
+class ReadMarksDistribution(BaseModel):
+    id: int = Path()
+
+
 class Update(BaseModel):
     id: int = Path()
 
@@ -29,5 +33,5 @@ class ListDisciplines(ListParams):
     id: int = Path()
 
 
-class ReadMarksDistribution(BaseModel):
+class ListDisciplinesMarksAvg(ListParams):
     id: int = Path()

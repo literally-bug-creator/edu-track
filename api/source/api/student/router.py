@@ -131,3 +131,20 @@ async def read_marks_distribution(
     service: StudentService = Depends(StudentService),
 ):
     return await service.read_marks_distribution(pms, user)
+
+
+@router.get(
+    path=EPath.LIST_DISCIPLINES_MARKS_AVG,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {"model": responses.ListDisciplinesMarksAvg},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+        status.HTTP_503_SERVICE_UNAVAILABLE: {},
+    },
+)
+async def list_disciplines_marks_avg(
+    pms: params.ListDisciplinesMarksAvg = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN, UserRole.STUDENT])),
+    service: StudentService = Depends(StudentService),
+):
+    return await service.list_disciplines_marks_avg(pms, user)

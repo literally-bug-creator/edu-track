@@ -1,7 +1,10 @@
+from collections import defaultdict
+from statistics import mean
+
 from database.repos import DisciplineGroupRepo, MarkRepo, StudentRepo
 from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
-from schemas.discipline.common import Discipline
+from schemas.discipline.common import Discipline, DisciplineMarksAvg
 from schemas.marks.common import Mark, MarksDistribution, MarkType
 from schemas.student import bodies, params, responses
 from schemas.student.common import Student
@@ -35,6 +38,28 @@ class StudentService:
 
         scheme = Student.model_validate(model, from_attributes=True)
         return responses.Read(item=scheme)
+
+    async def read_marks_distribution(
+        self,
+        pms: params.ReadMarksDistribution,
+        user: User,
+    ) -> responses.ReadMarksDistribution:
+        if (user.role == UserRole.STUDENT) and (user.id != pms.id):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
+        distribution: dict[MarkType, int] = dict.fromkeys(MarkType, 0)
+
+        if not (student := await self.repo.filter_one(id=pms.id)):
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+        items = await self.mark_repo.filter(student_id=student.id)
+
+        for item in items:
+            distribution[item.type] += 1
+
+        return responses.ReadMarksDistribution(
+            item=MarksDistribution(items=distribution),
+        )
 
     async def update(
         self,
@@ -128,26 +153,38 @@ class StudentService:
             total=total,
         )
 
-    async def read_marks_distribution(
+    async def list_disciplines_marks_avg(
         self,
-        pms: params.ReadMarksDistribution,
+        pms: params.ListDisciplinesMarksAvg,
         user: User,
-    ) -> responses.ReadMarksDistribution:
+    ) -> responses.ListDisciplinesMarksAvg:
         if (user.role == UserRole.STUDENT) and (user.id != pms.id):
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
-        distribution: dict[MarkType, int] = dict.fromkeys(MarkType, 0)
-
         if not (student := await self.repo.filter_one(id=pms.id)):
-            return responses.ReadMarksDistribution(
-                item=MarksDistribution(items=distribution, total=0),
+            return responses.ListDisciplinesMarksAvg(items=[], total=0)
+
+        marks, _ = await self.mark_repo.list(
+            params=pms,
+            student_id=student.id,
+        )
+
+        discipline_marks = defaultdict(list)
+
+        for mark in marks:
+            discipline_marks[mark.discipline_id].append(mark.type)
+
+        discipline_marks_avg = []
+        for discipline_id, grades in discipline_marks.items():
+            average_grade = mean(grades)
+            discipline_marks_avg.append(
+                DisciplineMarksAvg(
+                    discipline_id=discipline_id,
+                    average_grade=average_grade,
+                )
             )
 
-        items = await self.mark_repo.filter(student_id=student.id)
-
-        for item in items:
-            distribution[item.type] += 1
-
-        return responses.ReadMarksDistribution(
-            item=MarksDistribution(items=distribution),
+        return responses.ListDisciplinesMarksAvg(
+            items=discipline_marks_avg,
+            total=len(discipline_marks_avg),
         )

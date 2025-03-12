@@ -8,3 +8,7 @@ class Discipline(BaseModel):
     track_id: int
     course_number: CourseNumber
     semester_number: SemesterNumber
+
+
+class DisciplineMarksAvg(Discipline):
+    avg_marks: float
