@@ -1,6 +1,7 @@
 from schemas.common.list import ListParams
 from pydantic import BaseModel
-from fastapi import Path
+from fastapi import Path, Depends
+from schemas.marks.common import MarkFilters
 
 
 class Read(BaseModel):
@@ -20,3 +21,4 @@ class List(ListParams):
 
 class ListMarks(ListParams):
     student_id: int = Path()
+    filters: MarkFilters = Depends()
