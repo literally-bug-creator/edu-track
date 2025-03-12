@@ -6,3 +6,4 @@ from .mark import MarkRepo as MarkRepo
 from .group import GroupRepo as GroupRepo
 from .track import TrackRepo as TrackRepo
 from .unit import UnitRepo as UnitRepo
+from .student import StudentRepo as StudentRepo

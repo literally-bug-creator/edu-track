@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from schemas.auth.common import UserRole
 
 
 class Update(BaseModel):
@@ -7,5 +6,4 @@ class Update(BaseModel):
     middle_name: str | None = None
     last_name: str | None = None
 
-    role: UserRole | None = None
     group_id: int | None = None
