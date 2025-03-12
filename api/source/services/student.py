@@ -1,11 +1,10 @@
-from database.repos import StudentRepo, MarkRepo, DisciplineGroupRepo
+from database.repos import DisciplineGroupRepo, MarkRepo, StudentRepo
 from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
-from schemas.marks.common import Mark
 from schemas.discipline.common import Discipline
+from schemas.marks.common import Mark, MarksDistribution, MarkType
 from schemas.student import bodies, params, responses
 from schemas.student.common import Student
-# from utils.auth import get_user_by_min_role, get_user_has_role
 
 
 class StudentService:
@@ -106,7 +105,7 @@ class StudentService:
             items=[Mark.model_validate(obj, from_attributes=True) for obj in items],
             total=total,
         )
-    
+
     async def list_disciplines(
         self,
         pms: params.ListDisciplines,
@@ -114,7 +113,7 @@ class StudentService:
     ) -> responses.ListDisciplines:
         if (user.role == UserRole.STUDENT) and (user.id != pms.id):
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
-        
+
         if not (student := await self.repo.filter_one(id=pms.id)):
             return responses.ListDisciplines(items=[], total=0)
 
@@ -123,6 +122,32 @@ class StudentService:
             group_id=student.group_id,
         )
         return responses.ListDisciplines(
-            items=[Discipline.model_validate(obj, from_attributes=True) for obj in items],
+            items=[
+                Discipline.model_validate(obj, from_attributes=True) for obj in items
+            ],
             total=total,
+        )
+
+    async def read_marks_distribution(
+        self,
+        pms: params.ReadMarksDistribution,
+        user: User,
+    ) -> responses.ReadMarksDistribution:
+        if (user.role == UserRole.STUDENT) and (user.id != pms.id):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
+        distribution: dict[MarkType, int] = dict.fromkeys(MarkType, 0)
+
+        if not (student := await self.repo.filter_one(id=pms.id)):
+            return responses.ReadMarksDistribution(
+                item=MarksDistribution(items=distribution, total=0),
+            )
+
+        items = await self.mark_repo.filter(student_id=student.id)
+
+        for item in items:
+            distribution[item.type] += 1
+
+        return responses.ReadMarksDistribution(
+            item=MarksDistribution(items=distribution),
         )

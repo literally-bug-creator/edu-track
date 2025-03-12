@@ -11,3 +11,4 @@ class EPath(StrEnum):
     LIST = ""
     LIST_MARKS = "/{id}/marks"
     LIST_DISCIPLINES = "/{id}/disciplines"
+    READ_MARKS_DISTRIBUTION = "/{id}/marks/distribution"

@@ -1,5 +1,5 @@
 from .common import Student
-from schemas.marks.common import Mark
+from schemas.marks.common import Mark, MarksDistribution
 from schemas.discipline.common import Discipline
 from schemas.common.crud import CRUDResponse
 from schemas.common.list import ListResponse
@@ -11,3 +11,4 @@ Update = CRUDResponse[Student]
 List = ListResponse[Student]
 ListMarks = ListResponse[Mark]
 ListDisciplines = ListResponse[Discipline]
+ReadMarksDistribution = CRUDResponse[MarksDistribution]

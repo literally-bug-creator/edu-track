@@ -27,3 +27,7 @@ class ListMarks(ListParams):
 
 class ListDisciplines(ListParams):
     id: int = Path()
+
+
+class ReadMarksDistribution(BaseModel):
+    id: int = Path()
