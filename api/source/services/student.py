@@ -14,7 +14,11 @@ class StudentService:
         self.repo = repo
 
     async def read(self, pms: params.Read) -> responses.Read:
-        if not (model := await self.repo.filter_one(**pms.model_dump())):
+        if not (
+            model := await self.repo.filter_one(
+                **pms.model_dump(), role=UserRole.STUDENT
+            )
+        ):
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
         scheme = Student.model_validate(model, from_attributes=True)
@@ -26,10 +30,14 @@ class StudentService:
         body: bodies.Update,
         user: User = Depends(get_permitted_user(UserRole.ADMIN)),
     ) -> responses.Update:
-        if not (model := await self.repo.filter_one(**pms.model_dump())):
+        if not (
+            model := await self.repo.filter_one(
+                **pms.model_dump(), role=UserRole.STUDENT
+            )
+        ):
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-        upd_model = await self.repo.update(model, **body.model_dump())
+        upd_model = await self.repo.update(model, **body.model_dump(exclude_none=True))
 
         if upd_model is None:
             raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE)
@@ -42,7 +50,11 @@ class StudentService:
         pms: params.Delete,
         user: User = Depends(get_permitted_user(UserRole.ADMIN)),
     ) -> None:
-        if not (model := await self.repo.filter_one(**pms.model_dump())):
+        if not (
+            model := await self.repo.filter_one(
+                **pms.model_dump(), role=UserRole.STUDENT
+            )
+        ):
             raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE)
 
         await self.repo.delete(model)
@@ -52,7 +64,7 @@ class StudentService:
         pms: params.List,
         user: User = Depends(get_permitted_user(UserRole.ADMIN)),
     ) -> responses.List:
-        items, total = await self.repo.list(params=pms)
+        items, total = await self.repo.list(params=pms, role=UserRole.STUDENT)
         return responses.List(
             items=[Student.model_validate(obj, from_attributes=True) for obj in items],
             total=total,

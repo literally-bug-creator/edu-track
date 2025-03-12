@@ -26,7 +26,7 @@ async def get_auth_token(request: Request) -> str:
 
 
 async def get_user(
-    token: str | None = Depends(oauth2_bearer), repo: UserRepo = Depends(UserRepo)
+    token: str = Depends(oauth2_bearer), repo: UserRepo = Depends(UserRepo)
 ) -> User:
     public_key = await read_key(auth_settings.public_key_path)
 
@@ -39,11 +39,12 @@ async def get_user(
     if not await repo.filter_one(**user_scheme.model_dump()):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-    return User
+    return user_scheme
 
 
 def get_permitted_user(min_role: UserRole | None = None) -> Callable:
     async def dep(user: User = Depends(get_user)) -> User:
+        print(user)
         if (min_role is not None) and (user.role > min_role):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         return user

@@ -33,7 +33,7 @@ class UnitService:
         if not (model := await self.repo.filter_one(**pms.model_dump())):
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-        upd_model = await self.repo.update(model, **body.model_dump())
+        upd_model = await self.repo.update(model, **body.model_dump(exclude_none=None))
 
         if upd_model is None:
             raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE)

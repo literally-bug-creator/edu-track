@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
-from schemas.track import params, bodies, responses
-from services.track import TrackService
+from schemas.student import params, bodies, responses
+from services.student import StudentService
 
 from .config import EPath, PREFIX
 
@@ -20,7 +20,7 @@ router = APIRouter(prefix=PREFIX, tags=["Student"])
 )
 async def read(
     pms: params.Read = Depends(),
-    service: TrackService = Depends(TrackService),
+    service: StudentService = Depends(StudentService),
 ):
     return await service.read(pms)
 
@@ -38,7 +38,7 @@ async def read(
 async def update(
     pms: params.Update = Depends(),
     body: bodies.Update = Depends(),
-    service: TrackService = Depends(TrackService),
+    service: StudentService = Depends(StudentService),
 ):
     return await service.update(pms, body)
 
@@ -55,7 +55,7 @@ async def update(
 )
 async def delete(
     pms: params.Delete = Depends(),
-    service: TrackService = Depends(TrackService),
+    service: StudentService = Depends(StudentService),
 ):
     return await service.delete(pms)
 
@@ -71,6 +71,6 @@ async def delete(
 )
 async def list(
     pms: params.List = Depends(),
-    service: TrackService = Depends(TrackService),
+    service: StudentService = Depends(StudentService),
 ):
     return await service.list(pms)
