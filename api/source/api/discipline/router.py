@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, status
 from schemas.discipline import params, bodies, responses
 from services.discipline import DisciplineService
+from schemas.auth.common import User, UserRole
+from utils.auth import get_user_has_role
 
 from .config import EPath, PREFIX
 
@@ -36,6 +38,7 @@ async def create(
 )
 async def read(
     pms: params.Read = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
     service: DisciplineService = Depends(DisciplineService),
 ):
     return await service.read(pms)
@@ -54,6 +57,7 @@ async def read(
 async def update(
     body: bodies.Update,
     pms: params.Update = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
     service: DisciplineService = Depends(DisciplineService),
 ):
     return await service.update(pms, body)
@@ -71,6 +75,7 @@ async def update(
 )
 async def delete(
     pms: params.Delete = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
     service: DisciplineService = Depends(DisciplineService),
 ):
     return await service.delete(pms)
@@ -87,6 +92,7 @@ async def delete(
 )
 async def list(
     pms: params.List = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
     service: DisciplineService = Depends(DisciplineService),
 ):
     return await service.list(pms)

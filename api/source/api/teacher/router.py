@@ -97,3 +97,21 @@ async def list_disciplines(
     service: TeacherService = Depends(TeacherService),
 ):
     return await service.list_disciplines(pms, user)
+
+
+@router.get(
+    path=EPath.READ_DISCIPLINE_AVG_MARK,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {"model": responses.ReadDisciplineAvgMark},
+        status.HTTP_404_NOT_FOUND: {},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+        status.HTTP_503_SERVICE_UNAVAILABLE: {},
+    },
+)
+async def read_discipline_avg_mark(
+    pms: params.ReadDisciplineAvgMark = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN, UserRole.TEACHER])),
+    service: TeacherService = Depends(TeacherService),
+):
+    return await service.read(pms, user)

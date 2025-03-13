@@ -11,3 +11,4 @@ class EPath(StrEnum):
     DELETE = "/{id}"
     LIST = ""
     LIST_DISCIPLINES = "/{id}/disciplines"
+    READ_DISCIPLINE_AVG_MARK = "/{id}/disciplines/{discipline_id}/avg-mark"

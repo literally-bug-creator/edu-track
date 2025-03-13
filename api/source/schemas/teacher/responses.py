@@ -9,4 +9,4 @@ Read = CRUDResponse[Teacher]
 Update = CRUDResponse[Teacher]
 List = ListResponse[Teacher]
 ListDisciplines = ListResponse[Discipline]
-
+ReadDisciplineAvgMark = CRUDResponse[float]

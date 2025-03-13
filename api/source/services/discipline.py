@@ -1,19 +1,15 @@
 from database.repos import DisciplineRepo
 from fastapi import Depends, HTTPException, status
-from schemas.auth.common import User, UserRole
 from schemas.discipline import bodies, params, responses
 from schemas.discipline.common import Discipline
-from utils.auth import get_user_by_min_role
 
 
 class DisciplineService:
     def __init__(
         self,
         repo: DisciplineRepo = Depends(DisciplineRepo),
-        user: User = Depends(get_user_by_min_role(UserRole.ADMIN)),
     ) -> None:
         self.repo = repo
-        self.user = user
 
     async def create(self, body: bodies.Create) -> responses.Create:
         if not (model := await self.repo.new(**body.model_dump())):

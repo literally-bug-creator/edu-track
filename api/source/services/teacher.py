@@ -1,4 +1,4 @@
-from database.repos import DisciplineRepo, DisciplineTeacherRepo, TeacherRepo
+from database.repos import DisciplineRepo, DisciplineTeacherRepo, TeacherRepo, MarkRepo
 from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
 from schemas.discipline.common import Discipline
@@ -10,10 +10,12 @@ class TeacherService:
     def __init__(
         self,
         repo: TeacherRepo = Depends(TeacherRepo),
+        mark_repo: MarkRepo = Depends(MarkRepo),
         discip_repo: DisciplineRepo = Depends(DisciplineRepo),
-        discip_teacher_repo=Depends(DisciplineTeacherRepo),
+        discip_teacher_repo: DisciplineTeacherRepo = Depends(DisciplineTeacherRepo),
     ) -> None:
         self.repo = repo
+        self.mark_repo = mark_repo
         self.discip_repo = discip_repo
         self.discip_teacher_repo = discip_teacher_repo
 
@@ -114,3 +116,24 @@ class TeacherService:
             items=disciplines,
             total=len(disciplines),
         )
+    
+    async def read_discipline_avg_mark(self, pms: params.ReadDisciplineAvgMark, user: User) -> responses.ReadDisciplineAvgMark:
+        discipline = await self.discip_repo.get(pms.discipline_id)
+
+        if discipline is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+        if (user.role == UserRole.TEACHER) and (user.id != pms.id):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+        
+        if (user.role == UserRole.TEACHER):
+            if not await self.discip_teacher_repo.filter_one(teacher_id=user.id):
+                raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
+        marks, total = await self.mark_repo.list(discipline_id=pms.id)
+        marks_value = 0
+
+        for mark in marks:
+            marks_value += mark.type.value
+
+        return responses.ReadAvgMark(item=marks_value / total)
