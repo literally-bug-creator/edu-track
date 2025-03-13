@@ -1,6 +1,7 @@
 import { Layout, Menu, Button } from 'antd';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { BookOutlined, LogoutOutlined, DashboardOutlined } from '@ant-design/icons';
+import { logout } from '../api/auth';
 
 const { Content, Header } = Layout;
 
@@ -22,7 +23,7 @@ const TeacherLayout = () => {
   ];
 
   const handleLogout = () => {
-    navigate('/login');
+    logout();
   };
 
   return (

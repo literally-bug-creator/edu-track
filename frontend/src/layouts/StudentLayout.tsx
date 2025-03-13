@@ -1,6 +1,7 @@
 import { Layout, Menu, Button } from 'antd';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { DashboardOutlined, BookOutlined, LogoutOutlined } from '@ant-design/icons';
+import { logout } from '../api/auth';
 
 const { Content, Header } = Layout;
 
@@ -22,8 +23,7 @@ const StudentLayout = () => {
   ];
 
   const handleLogout = () => {
-    // Здесь можно добавить логику выхода (очистка токенов и т.д.)
-    navigate('/login');
+    logout();
   };
 
   return (

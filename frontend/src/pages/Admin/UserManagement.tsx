@@ -1,70 +1,138 @@
 import { Card, Table, Select, message } from 'antd';
+import { useState, useEffect } from 'react';
 import type { TableColumnsType } from 'antd';
+import type { TablePaginationConfig } from 'antd/es/table';
+import type { SorterResult } from 'antd/es/table/interface';
+import httpClient from '../../api/httpClient';
 
 interface User {
   id: string;
-  name: string;
-  email: string;
-  currentRole: string | null;
+  first_name: string;
+  last_name: string;
+  middle_name: string;
+  username: string; // email в API
+  role: number; // Добавляем поле role
+  currentRole?: string | null;
+}
+
+interface UsersParams {
+  page: number;
+  perPage: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 const UserManagement = () => {
-  const handleRoleChange = (userId: string, newRole: string) => {
-    // TODO: Здесь должен быть API-запрос на изменение роли
-    console.log(`Changing role for user ${userId} to ${newRole}`);
-    message.success('Роль пользователя успешно изменена');
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [params, setParams] = useState<UsersParams>({
+    page: 1,
+    perPage: 10,
+    sortOrder: 'asc'
+  });
+
+  const fetchUsers = async (parameters: UsersParams) => {
+    setLoading(true);
+    try {
+      const { data } = await httpClient.get('/users', {
+        params: {
+          page: parameters.page,
+          perPage: parameters.perPage,
+          sortBy: parameters.sortBy,
+          sortOrder: parameters.sortOrder,
+        }
+      });
+      setUsers(data.items);
+      setTotal(data.total);
+    } catch (error) {
+      message.error('Ошибка при загрузке списка пользователей');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers(params);
+  }, [params]);
+
+  const handleTableChange = (
+    pagination: TablePaginationConfig,
+    _: any,
+    sorter: SorterResult<User>
+  ) => {
+    setParams({
+      ...params,
+      page: pagination.current || 1,
+      perPage: pagination.pageSize || 10,
+      sortBy: sorter.field as string,
+      sortOrder: sorter.order === 'descend' ? 'desc' : 'asc'
+    });
+  };
+
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    try {
+      await httpClient.patch(`/users/${userId}`, null, {
+        params: {
+          role: newRole // newRole уже содержит числовое значение
+        }
+      });
+      message.success('Роль пользователя успешно изменена');
+      fetchUsers(params);
+    } catch (error) {
+      message.error('Ошибка при изменении роли пользователя');
+    }
   };
 
   const columns: TableColumnsType<User> = [
-    { title: 'ФИО', dataIndex: 'name', key: 'name' },
-    { title: 'Email', dataIndex: 'email', key: 'email' },
+    { 
+      title: 'ФИО', 
+      key: 'name',
+      sorter: true,
+      render: (_, record) => 
+        `${record.last_name} ${record.first_name} ${record.middle_name || ''}`.trim()
+    },
+    { 
+      title: 'Email', 
+      dataIndex: 'username', 
+      key: 'email',
+      sorter: true 
+    },
     {
       title: 'Роль',
       key: 'role',
       render: (_, record) => (
         <Select
           style={{ width: 200 }}
-          value={record.currentRole || undefined}
+          value={String(record.role)} // Используем значение из role
           onChange={(value) => handleRoleChange(record.id, value)}
           placeholder="Выберите роль"
           options={[
-            { value: 'student', label: 'Студент' },
-            { value: 'teacher', label: 'Преподаватель' },
-            { value: 'admin', label: 'Администратор' },
+            { value: '0', label: 'Администратор' },
+            { value: '1', label: 'Преподаватель' },
+            { value: '2', label: 'Студент' },
           ]}
         />
       ),
     }
   ];
 
-  // Моковые данные для примера
-  const mockUsers: User[] = [
-    {
-      id: '1',
-      name: 'Иванов Иван Иванович',
-      email: 'ivanov@edu.ru',
-      currentRole: 'student'
-    },
-    {
-      id: '2',
-      name: 'Петров Петр Петрович',
-      email: 'petrov@edu.ru',
-      currentRole: 'teacher'
-    },
-    {
-      id: '3',
-      name: 'Сидоров Сидор Сидорович',
-      email: 'sidorov@edu.ru',
-      currentRole: null
-    },
-  ];
-
   return (
     <Card title="Управление пользователями" style={{ margin: 20 }}>
       <Table 
         columns={columns} 
-        dataSource={mockUsers}
+        dataSource={users}
         rowKey="id"
+        loading={loading}
+        pagination={{
+          current: params.page,
+          pageSize: params.perPage,
+          total: total,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          showTotal: (total) => `Всего ${total} записей`
+        }}
+        onChange={handleTableChange}
       />
     </Card>
   );

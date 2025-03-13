@@ -1,6 +1,7 @@
 import { Card, Form, Input, Select, Button, Table, message } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { TableColumnsType } from 'antd';
+import httpClient from '../../api/httpClient';
 
 interface Teacher {
   id: string;
@@ -17,6 +18,9 @@ interface Group {
 const CreateDiscipline = () => {
   const [selectedTeachers, setSelectedTeachers] = useState<string[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
   const teacherColumns: TableColumnsType<Teacher> = [
@@ -29,30 +33,51 @@ const CreateDiscipline = () => {
     { title: 'Курс', dataIndex: 'course', key: 'course' },
   ];
 
-  const mockTeachers: Teacher[] = [
-    { id: '1', name: 'Иванов И.И.', department: 'Кафедра 1' },
-    { id: '2', name: 'Петров П.П.', department: 'Кафедра 2' },
-  ];
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const { data } = await httpClient.get('/teachers');
+        setTeachers(data);
+      } catch (error) {
+        console.error('Error fetching teachers:', error);
+        message.error('Ошибка при загрузке списка преподавателей');
+      }
+    };
 
-  const mockGroups: Group[] = [
-    { id: '1', name: 'Группа 101', course: '1' },
-    { id: '2', name: 'Группа 102', course: '1' },
-  ];
+    const fetchGroups = async () => {
+      try {
+        const { data } = await httpClient.get('/groups');
+        setGroups(data);
+      } catch (error) {
+        console.error('Error fetching groups:', error);
+        message.error('Ошибка при загрузке списка групп');
+      }
+    };
+
+    fetchTeachers();
+    fetchGroups();
+  }, []);
 
   const handleSubmit = async (values: any) => {
+    setLoading(true);
     try {
       const disciplineData = {
         ...values,
         teachers: selectedTeachers,
         groups: selectedGroups,
       };
-      console.log('Создание дисциплины:', disciplineData);
+
+      await httpClient.post('/api/disciplines', disciplineData);
+      
       message.success('Дисциплина успешно создана');
       form.resetFields();
       setSelectedTeachers([]);
       setSelectedGroups([]);
     } catch (error) {
+      console.error('Error creating discipline:', error);
       message.error('Ошибка при создании дисциплины');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,7 +137,7 @@ const CreateDiscipline = () => {
             },
           }}
           columns={teacherColumns}
-          dataSource={mockTeachers}
+          dataSource={teachers}
           rowKey="id"
         />
       </Card>
@@ -127,7 +152,7 @@ const CreateDiscipline = () => {
             },
           }}
           columns={groupColumns}
-          dataSource={mockGroups}
+          dataSource={groups}
           rowKey="id"
         />
 
@@ -135,6 +160,7 @@ const CreateDiscipline = () => {
           type="primary"
           onClick={() => form.submit()}
           style={{ marginTop: 16 }}
+          loading={loading}
         >
           Создать дисциплину
         </Button>
