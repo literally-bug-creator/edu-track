@@ -110,7 +110,7 @@ async def list(
     },
 )
 async def create_group(
-    pms: params.CreateGroup,
+    pms: params.CreateGroup = Depends(),
     user: User = Depends(get_user_has_role([UserRole.ADMIN])),
     service: DisciplineService = Depends(DisciplineService),
 ):
@@ -163,7 +163,7 @@ async def delete_group(
     },
 )
 async def create_teacher(
-    pms: params.CreateTeacher,
+    pms: params.CreateTeacher = Depends(),
     user: User = Depends(get_user_has_role([UserRole.ADMIN])),
     service: DisciplineService = Depends(DisciplineService),
 ):
