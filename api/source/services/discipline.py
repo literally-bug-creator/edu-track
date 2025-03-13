@@ -6,6 +6,7 @@ from database.repos import (
     TeacherRepo,
 )
 from fastapi import Depends, HTTPException, status
+from schemas.auth.common import User, UserRole
 from schemas.discipline import bodies, params, responses
 from schemas.discipline.common import Discipline, DisciplineGroup, DisciplineTeacher
 from schemas.group.common import Group
@@ -120,16 +121,25 @@ class DisciplineService:
 
         await self.discipline_group_repo.delete(model)
 
-    async def list_groups(self, pms: params.ListGroups) -> responses.ListGroups:
+    async def list_groups(
+        self, pms: params.ListGroups, user: User
+    ) -> responses.ListGroups:
+        if user.role == UserRole.TEACHER:
+            if not await self.discipline_teacher_repo.filter_one(
+                discipline_id=pms.id,
+                teacher_id=user.id,
+            ):
+                raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
         items, total = await self.discipline_group_repo.list_groups(pms.id)
         return responses.List(
-            items=[
-                Group.model_validate(obj, from_attributes=True) for obj in items
-            ],
+            items=[Group.model_validate(obj, from_attributes=True) for obj in items],
             total=total,
         )
 
-    async def create_teacher(self, pms: params.CreateTeacher) -> responses.CreateTeacher:
+    async def create_teacher(
+        self, pms: params.CreateTeacher
+    ) -> responses.CreateTeacher:
         if not (await self.repo.filter_one(id=pms.id)):
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 

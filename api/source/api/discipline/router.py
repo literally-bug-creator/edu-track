@@ -162,10 +162,10 @@ async def delete_group(
 )
 async def list_groups(
     pms: params.ListGroups = Depends(),
-    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN, UserRole.TEACHER])),
     service: DisciplineService = Depends(DisciplineService),
 ):
-    return await service.list_groups(pms)
+    return await service.list_groups(pms, user)
 
 
 @router.put(
