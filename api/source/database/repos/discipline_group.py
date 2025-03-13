@@ -18,5 +18,6 @@ class DisciplineGroupRepo(BaseRepo):
     
     async def list_groups(self, discipline_id):
         query = select(Group).join(DisciplineGroup).filter(DisciplineGroup.discipline_id == discipline_id)
-        return (await self.execute(query)).scalars()
+        items = (await self.execute(query)).scalars()
+        return items, len(items)
 
