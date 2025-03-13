@@ -15,6 +15,6 @@ class EPath(StrEnum):
     READ_GROUP = "/{id}/{group_id}"
     DELETE_GROUP = "/{id}/{group_id}"
 
-    CREATE_TEACHER = "/{id}/{group_id}"
-    READ_TEACHER = "/{id}/{group_id}"
-    DELETE_TEACHER = "/{id}/{group_id}"
+    CREATE_TEACHER = "/{id}/{teacher_id}"
+    READ_TEACHER = "/{id}/{teacher_id}"
+    DELETE_TEACHER = "/{id}/{teacher_id}"
