@@ -17,3 +17,7 @@ class Delete(BaseModel):
 
 class List(ListParams):
     pass
+
+
+class ListDisciplines(ListParams):
+    id: int = Path()
