@@ -17,3 +17,33 @@ class Delete(BaseModel):
 
 class List(ListParams):
     pass
+
+
+class CreateGroup(BaseModel):
+    id: int = Path()
+    group_id: int = Path()
+
+
+class ReadGroup(BaseModel):
+    id: int = Path()
+    group_id: int = Path()
+
+
+class DeleteGroup(BaseModel):
+    id: int = Path()
+    group_id: int = Path()
+
+
+class CreateTeacher(BaseModel):
+    id: int = Path()
+    teacher_id: int = Path()
+
+
+class ReadTeacher(BaseModel):
+    id: int = Path()
+    teacher_id: int = Path()
+
+
+class DeleteTeacher(BaseModel):
+    id: int = Path()
+    teacher_id: int = Path()

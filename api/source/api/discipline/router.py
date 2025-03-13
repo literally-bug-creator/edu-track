@@ -21,6 +21,7 @@ router = APIRouter(prefix=PREFIX, tags=["Discipline"])
 )
 async def create(
     body: bodies.Create,
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
     service: DisciplineService = Depends(DisciplineService),
 ):
     return await service.create(body)
@@ -33,7 +34,6 @@ async def create(
         status.HTTP_200_OK: {"model": responses.Read},
         status.HTTP_404_NOT_FOUND: {},
         status.HTTP_500_INTERNAL_SERVER_ERROR: {},
-        status.HTTP_503_SERVICE_UNAVAILABLE: {},
     },
 )
 async def read(
@@ -96,3 +96,109 @@ async def list(
     service: DisciplineService = Depends(DisciplineService),
 ):
     return await service.list(pms)
+
+
+@router.put(
+    path=EPath.CREATE_GROUP,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_201_CREATED: {"model": responses.CreateGroup},
+        status.HTTP_400_BAD_REQUEST: {},
+        status.HTTP_404_NOT_FOUND: {},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+        status.HTTP_503_SERVICE_UNAVAILABLE: {},
+    },
+)
+async def create_group(
+    pms: params.CreateGroup,
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
+    service: DisciplineService = Depends(DisciplineService),
+):
+    return await service.create_group(pms)
+
+
+@router.get(
+    path=EPath.READ_GROUP,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {"model": responses.ReadGroup},
+        status.HTTP_404_NOT_FOUND: {},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+    },
+)
+async def read_group(
+    pms: params.ReadGroup = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
+    service: DisciplineService = Depends(DisciplineService),
+):
+    return await service.read_group(pms)
+
+
+@router.delete(
+    path=EPath.DELETE_GROUP,
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_204_NO_CONTENT: {},
+        status.HTTP_404_NOT_FOUND: {},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+    },
+)
+async def delete_group(
+    pms: params.DeleteGroup = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
+    service: DisciplineService = Depends(DisciplineService),
+):
+    return await service.delete_group(pms)
+
+
+@router.put(
+    path=EPath.CREATE_TEACHER,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_201_CREATED: {"model": responses.CreateTeacher},
+        status.HTTP_400_BAD_REQUEST: {},
+        status.HTTP_404_NOT_FOUND: {},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+        status.HTTP_503_SERVICE_UNAVAILABLE: {},
+    },
+)
+async def create_teacher(
+    pms: params.CreateTeacher,
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
+    service: DisciplineService = Depends(DisciplineService),
+):
+    return await service.create_teacher(pms)
+
+
+@router.get(
+    path=EPath.READ_TEACHER,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {"model": responses.ReadTeacher},
+        status.HTTP_404_NOT_FOUND: {},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+    },
+)
+async def read_teacher(
+    pms: params.ReadTeacher = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
+    service: DisciplineService = Depends(DisciplineService),
+):
+    return await service.read_teacher(pms)
+
+
+@router.delete(
+    path=EPath.DELETE_TEACHER,
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_204_NO_CONTENT: {},
+        status.HTTP_404_NOT_FOUND: {},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+    },
+)
+async def delete_teacher(
+    pms: params.DeleteTeacher = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
+    service: DisciplineService = Depends(DisciplineService),
+):
+    return await service.delete_teacher(pms)
