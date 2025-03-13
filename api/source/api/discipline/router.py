@@ -151,6 +151,23 @@ async def delete_group(
     return await service.delete_group(pms)
 
 
+@router.get(
+    path=EPath.LIST_GROUPS,
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_200_OK: {"model": responses.ListGroups},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+        status.HTTP_503_SERVICE_UNAVAILABLE: {},
+    },
+)
+async def list_groups(
+    pms: params.ListGroups = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
+    service: DisciplineService = Depends(DisciplineService),
+):
+    return await service.list_groups(pms)
+
+
 @router.put(
     path=EPath.CREATE_TEACHER,
     status_code=status.HTTP_201_CREATED,

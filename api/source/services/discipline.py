@@ -8,6 +8,7 @@ from database.repos import (
 from fastapi import Depends, HTTPException, status
 from schemas.discipline import bodies, params, responses
 from schemas.discipline.common import Discipline, DisciplineGroup, DisciplineTeacher
+from schemas.group.common import Group
 
 
 class DisciplineService:
@@ -118,6 +119,15 @@ class DisciplineService:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
         await self.discipline_group_repo.delete(model)
+
+    async def list_groups(self, pms: params.ListGroups) -> responses.ListGroups:
+        items, total = await self.discipline_group_repo.list_groups(pms.id)
+        return responses.List(
+            items=[
+                Group.model_validate(obj, from_attributes=True) for obj in items
+            ],
+            total=total,
+        )
 
     async def create_teacher(self, pms: params.CreateTeacher) -> responses.CreateTeacher:
         if not (await self.repo.filter_one(id=pms.id)):

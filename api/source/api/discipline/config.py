@@ -11,10 +11,12 @@ class EPath(StrEnum):
     DELETE = "/{id}"
     LIST = ""
 
-    CREATE_GROUP = "/{id}/{group_id}"
-    READ_GROUP = "/{id}/{group_id}"
-    DELETE_GROUP = "/{id}/{group_id}"
+    CREATE_GROUP = "/{id}/groups/{group_id}"
+    READ_GROUP = "/{id}/groups/{group_id}"
+    DELETE_GROUP = "/{id}/groups/{group_id}"
+    LIST_GROUPS = "/{id}/groups"
 
-    CREATE_TEACHER = "/{id}/{teacher_id}"
-    READ_TEACHER = "/{id}/{teacher_id}"
-    DELETE_TEACHER = "/{id}/{teacher_id}"
+    CREATE_TEACHER = "/{id}/teachers/{teacher_id}"
+    READ_TEACHER = "/{id}/teachers/{teacher_id}"
+    DELETE_TEACHER = "/{id}/teachers/{teacher_id}"
+    LIST_TEACHERS = "/{id}/teachers"

@@ -1,8 +1,8 @@
 from typing import Any
 
-from sqlalchemy import func
+from sqlalchemy import func, select
 
-from database.models import DisciplineGroup
+from database.models import DisciplineGroup, Group
 
 from .base import BaseRepo
 
@@ -15,3 +15,8 @@ class DisciplineGroupRepo(BaseRepo):
             **filters
         )
         return (await self.execute(query)).scalar_one()
+    
+    async def list_groups(self, discipline_id):
+        query = select(Group).join(DisciplineGroup).filter(DisciplineGroup.discipline_id == discipline_id).all()
+        return (await self.execute(query))
+

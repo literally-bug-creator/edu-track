@@ -34,6 +34,10 @@ class DeleteGroup(BaseModel):
     group_id: int = Path()
 
 
+class ListGroups(BaseModel):
+    id: int = Path()
+
+
 class CreateTeacher(BaseModel):
     id: int = Path()
     teacher_id: int = Path()
@@ -47,3 +51,7 @@ class ReadTeacher(BaseModel):
 class DeleteTeacher(BaseModel):
     id: int = Path()
     teacher_id: int = Path()
+
+
+class ListTeachers(BaseModel):
+    id: int = Path()
