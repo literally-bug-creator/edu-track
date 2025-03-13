@@ -133,7 +133,7 @@ class DisciplineService:
 
         groups = await self.discipline_group_repo.list_groups(pms.id)
         items = [Group.model_validate(obj, from_attributes=True) for obj in groups]
-        return responses.List(
+        return responses.ListGroups(
             items=items,
             total=len(items),
         )
