@@ -32,17 +32,24 @@ const GradesDistribution = () => {
   useEffect(() => {
     const fetchMarksDistribution = async () => {
       try {
-        const { data } = await httpClient.get('/students/id/marks/distribution');
+        // Сначала получаем ID текущего пользователя
+        const userResponse = await httpClient.get('/auth/jwt/me');
+        const studentId = userResponse.data.id;
+        
+        // Затем получаем распределение оценок
+        const { data } = await httpClient.get(`/students/${studentId}/marks/distribution`);
+        
+        const gradesData = data.item.items;
         
         setChartData(prev => ({
           ...prev,
           datasets: [{
             ...prev.datasets[0],
             data: [
-              data.excellent || 0,
-              data.good || 0,
-              data.satisfactory || 0,
-              data.unsatisfactory || 0
+              gradesData['5'] || 0,
+              gradesData['4'] || 0,
+              gradesData['3'] || 0,
+              gradesData['2'] || 0
             ]
           }]
         }));

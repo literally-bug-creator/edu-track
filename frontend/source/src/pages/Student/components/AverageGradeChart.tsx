@@ -1,4 +1,5 @@
 import { Line } from 'react-chartjs-2';
+import { useState, useEffect } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,6 +10,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import httpClient from '../../../api/httpClient';
 
 ChartJS.register(
   CategoryScale,
@@ -21,19 +23,59 @@ ChartJS.register(
 );
 
 const AverageGradeChart = () => {
-  const data = {
-    labels: ['Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+  const [chartData, setChartData] = useState({
+    labels: [],
     datasets: [
       {
         label: 'Средний балл',
-        data: [4.2, 4.3, 4.1, 4.4],
+        data: [],
         borderColor: '#1890ff',
         backgroundColor: 'rgba(24, 144, 255, 0.1)',
         tension: 0.3,
         fill: true,
       },
     ],
-  };
+  });
+
+  useEffect(() => {
+    const fetchAverageGrades = async () => {
+      try {
+        // Сначала получаем информацию о текущем пользователе
+        const userResponse = await httpClient.get('/auth/jwt/me');
+        const studentId = userResponse.data.id;
+
+        // Получаем данные за последние 6 месяцев
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 6);
+
+        const { data } = await httpClient.get(`/students/${studentId}/marks/avg-by-date`, {
+          params: {
+            date_from: startDate.toISOString().split('T')[0],
+            date_to: endDate.toISOString().split('T')[0]
+          }
+        });
+
+        // Форматируем даты для отображения
+        const formattedData = data.items.map(item => ({
+          date: new Date(item.date).toLocaleDateString('ru-RU', { month: 'long' }),
+          value: item.value
+        }));
+
+        setChartData(prev => ({
+          labels: formattedData.map(item => item.date),
+          datasets: [{
+            ...prev.datasets[0],
+            data: formattedData.map(item => item.value)
+          }]
+        }));
+      } catch (error) {
+        console.error('Error fetching average grades:', error);
+      }
+    };
+
+    fetchAverageGrades();
+  }, []);
 
   const options = {
     responsive: true,
@@ -65,7 +107,7 @@ const AverageGradeChart = () => {
 
   return (
     <div style={{ height: '300px', padding: '10px' }}>
-      <Line data={data} options={options} />
+      <Line data={chartData} options={options} />
     </div>
   );
 };

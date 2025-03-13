@@ -10,10 +10,10 @@ interface Discipline {
 }
 
 interface Mark {
-  id: number;
-  discipline: string;
-  workType: string;
-  score: number;
+  discipline_id: number;
+  student_id: number;
+  work_type: number;
+  type: number;
   date: string;
 }
 
@@ -58,7 +58,7 @@ const Marks = () => {
         }));
 
         // После получения ID студента, загружаем его дисциплины
-        const disciplinesResponse = await httpClient.get(`/disciplines/${data.id}/students`, {
+        const disciplinesResponse = await httpClient.get(`/students/${data.id}/disciplines`, {
           params: {
             page: 1,
             perPage: 100, // Загружаем все дисциплины сразу
@@ -83,32 +83,35 @@ const Marks = () => {
 
   const columns: TableColumnsType<Mark> = [
     {
-      title: 'Дисциплина',
-      dataIndex: 'discipline',
-      key: 'discipline',
-    },
-    {
       title: 'Тип работы',
-      dataIndex: 'workType',
-      key: 'workType',
+      dataIndex: 'work_type',
+      key: 'work_type',
     },
     {
       title: 'Оценка',
-      dataIndex: 'score',
-      key: 'score',
+      dataIndex: 'type',
+      key: 'type',
     },
     {
       title: 'Дата',
       dataIndex: 'date',
       key: 'date',
+      render: (date: string) => new Date(date).toLocaleDateString('ru-RU')
     },
   ];
 
   const fetchMarks = async (parameters: MarksParams) => {
     setLoading(true);
     try {
-      const { data } = await httpClient.get('/students/id/marks', {
-        params: parameters
+      const { data } = await httpClient.get(`/students/${parameters.student_id}/marks`, {
+        params: {
+          page: parameters.page,
+          perPage: parameters.perPage,
+          sortBy: parameters.sortBy,
+          sortOrder: parameters.sortOrder,
+          discipline_id: parameters.discipline_id,
+          work_type: parameters.work_type
+        }
       });
       setMarks(data.items);
       setTotal(data.total);
