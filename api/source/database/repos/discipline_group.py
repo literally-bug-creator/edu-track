@@ -17,6 +17,6 @@ class DisciplineGroupRepo(BaseRepo):
         return (await self.execute(query)).scalar_one()
     
     async def list_groups(self, discipline_id):
-        query = select(Group).join(DisciplineGroup).filter(DisciplineGroup.discipline_id == discipline_id).all()
-        return (await self.execute(query))
+        query = select(Group).join(DisciplineGroup).filter(DisciplineGroup.discipline_id == discipline_id)
+        return (await self.execute(query)).scalars()
 
