@@ -153,7 +153,7 @@ async def delete_group(
 
 @router.get(
     path=EPath.LIST_GROUPS,
-    status_code=status.HTTP_204_NO_CONTENT,
+    status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_200_OK: {"model": responses.ListGroups},
         status.HTTP_500_INTERNAL_SERVER_ERROR: {},
