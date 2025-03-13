@@ -10,6 +10,7 @@ from schemas.auth.common import User, UserRole
 from schemas.discipline import bodies, params, responses
 from schemas.discipline.common import Discipline, DisciplineGroup, DisciplineTeacher
 from schemas.group.common import Group
+from schemas.teacher.common import Teacher
 
 
 class DisciplineService:
@@ -179,8 +180,8 @@ class DisciplineService:
         if model is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-        scheme = DisciplineGroup.model_validate(model, from_attributes=True)
-        return responses.ReadGroup(item=scheme)
+        scheme = DisciplineTeacher.model_validate(model, from_attributes=True)
+        return responses.ReadTeacher(item=scheme)
 
     async def delete_teacher(self, pms: params.DeleteTeacher) -> None:
         model = await self.discipline_teacher_repo.filter_one(
@@ -191,4 +192,15 @@ class DisciplineService:
         if model is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-        await self.discipline_group_repo.delete(model)
+        await self.discipline_teacher_repo.delete(model)
+
+    async def list_teachers(
+        self,
+        pms: params.ListTeachers,
+    ) -> responses.ListTeachers:
+        teachers = await self.discipline_teacher_repo.list_teachers(pms.id)
+        items = [Teacher.model_validate(obj, from_attributes=True) for obj in teachers]
+        return responses.ListTeachers(
+            items=items,
+            total=len(items),
+        )

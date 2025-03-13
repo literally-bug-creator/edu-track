@@ -219,3 +219,20 @@ async def delete_teacher(
     service: DisciplineService = Depends(DisciplineService),
 ):
     return await service.delete_teacher(pms)
+
+
+@router.get(
+    path=EPath.LIST_TEACHERS,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {"model": responses.ListTeachers},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+        status.HTTP_503_SERVICE_UNAVAILABLE: {},
+    },
+)
+async def list_teachers(
+    pms: params.ListTeachers = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN])),
+    service: DisciplineService = Depends(DisciplineService),
+):
+    return await service.list_teachers(pms)
