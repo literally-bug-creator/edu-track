@@ -131,10 +131,11 @@ class DisciplineService:
             ):
                 raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
-        items, total = await self.discipline_group_repo.list_groups(pms.id)
+        groups = await self.discipline_group_repo.list_groups(pms.id)
+        items = [Group.model_validate(obj, from_attributes=True) for obj in groups]
         return responses.List(
-            items=[Group.model_validate(obj, from_attributes=True) for obj in items],
-            total=total,
+            items=items,
+            total=len(items),
         )
 
     async def create_teacher(
