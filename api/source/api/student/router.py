@@ -39,8 +39,8 @@ async def read(
     },
 )
 async def update(
+    body: bodies.Update,
     pms: params.Update = Depends(),
-    body: bodies.Update = Depends(),
     user: User = Depends(get_user_by_min_role(UserRole.ADMIN)),
     service: StudentService = Depends(StudentService),
 ):
@@ -148,3 +148,20 @@ async def list_disciplines_marks_avg(
     service: StudentService = Depends(StudentService),
 ):
     return await service.list_disciplines_marks_avg(pms, user)
+
+
+@router.get(
+    path=EPath.LIST_MARKS_AVG_BY_DATE,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {"model": responses.ListMarksAvgByDate},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+        status.HTTP_503_SERVICE_UNAVAILABLE: {},
+    },
+)
+async def list_marks_avg_by_date(
+    pms: params.ListMarksAvgByDate = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN, UserRole.STUDENT])),
+    service: StudentService = Depends(StudentService),
+):
+    return await service.list_marks_avg_by_date(pms, user)

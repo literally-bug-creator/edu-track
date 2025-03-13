@@ -12,4 +12,5 @@ class EPath(StrEnum):
     LIST = ""
     LIST_MARKS = "/{id}/marks"
     LIST_DISCIPLINES = "/{id}/disciplines"
-    LIST_DISCIPLINES_MARKS_AVG = "/{id}/disciplines/marksAvg"
+    LIST_DISCIPLINES_MARKS_AVG = "/{id}/disciplines/marks-avg"
+    LIST_MARKS_AVG_BY_DATE = "/{id}/marks/avg-by-date"

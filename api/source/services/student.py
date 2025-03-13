@@ -5,7 +5,7 @@ from database.repos import DisciplineGroupRepo, MarkRepo, StudentRepo
 from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
 from schemas.discipline.common import Discipline, DisciplineMarksAvg
-from schemas.marks.common import Mark, MarksDistribution, MarkType
+from schemas.marks.common import Mark, MarksDistribution, MarkType, AvgMarkByDate
 from schemas.student import bodies, params, responses
 from schemas.student.common import Student
 
@@ -187,4 +187,37 @@ class StudentService:
         return responses.ListDisciplinesMarksAvg(
             items=discipline_marks_avg,
             total=len(discipline_marks_avg),
+        )
+
+    async def list_marks_avg_by_date(
+        self,
+        pms: params.ListMarksAvgByDate,
+        user: User,
+    ) -> responses.ListMarksAvgByDate:
+        if (user.role == UserRole.STUDENT) and (user.id != pms.id):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
+        if not (student := await self.repo.filter_one(id=pms.id)):
+            return responses.ListMarksAvgByDate(items=[], total=0)
+
+        marks = await self.mark_repo.filter_by_date(
+            student.id,
+            pms.date_from,
+            pms.date_to,
+        )
+
+        marks_by_date = defaultdict(list)
+        for mark in marks:
+            marks_by_date[mark.date.date()].append(mark.type.value)
+
+        average_marks = [
+            AvgMarkByDate(date=date, value=sum(scores) / len(scores))
+            for date, scores in marks_by_date.items()
+        ]
+
+        average_marks.sort(key=lambda x: x.date)
+
+        return responses.ListMarksAvgByDate(
+            items=average_marks,
+            total=len(average_marks),
         )

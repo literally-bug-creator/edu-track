@@ -1,6 +1,8 @@
-from schemas.common.list import ListParams
+from datetime import date
+
+from fastapi import Depends, Path
 from pydantic import BaseModel
-from fastapi import Path, Depends
+from schemas.common.list import ListParams
 from schemas.marks.common import MarkFilters
 
 
@@ -35,3 +37,9 @@ class ListDisciplines(ListParams):
 
 class ListDisciplinesMarksAvg(ListParams):
     id: int = Path()
+
+
+class ListMarksAvgByDate(BaseModel):
+    id: int = Path()
+    date_from: date | None
+    date_to: date | None

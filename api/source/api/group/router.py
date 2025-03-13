@@ -18,7 +18,7 @@ router = APIRouter(prefix=PREFIX, tags=["Group"])
     },
 )
 async def create(
-    body: bodies.Create = Depends(),
+    body: bodies.Create,
     service: GroupService = Depends(GroupService),
 ):
     return await service.create(body)
@@ -52,8 +52,8 @@ async def read(
     },
 )
 async def update(
+    body: bodies.Update,
     pms: params.Update = Depends(),
-    body: bodies.Update = Depends(),
     service: GroupService = Depends(GroupService),
 ):
     return await service.update(pms, body)

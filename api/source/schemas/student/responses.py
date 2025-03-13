@@ -1,5 +1,5 @@
 from .common import Student
-from schemas.marks.common import Mark, MarksDistribution
+from schemas.marks.common import Mark, MarksDistribution, AvgMarkByDate
 from schemas.discipline.common import Discipline, DisciplineMarksAvg
 from schemas.common.crud import CRUDResponse
 from schemas.common.list import ListResponse
@@ -13,3 +13,4 @@ List = ListResponse[Student]
 ListMarks = ListResponse[Mark]
 ListDisciplines = ListResponse[Discipline]
 ListDisciplinesMarksAvg = ListResponse[DisciplineMarksAvg]
+ListMarksAvgByDate = ListResponse[AvgMarkByDate]
