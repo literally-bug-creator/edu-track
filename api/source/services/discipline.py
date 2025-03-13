@@ -3,6 +3,7 @@ from database.repos import (
     DisciplineRepo,
     DisciplineTeacherRepo,
     GroupRepo,
+    TeacherRepo,
 )
 from fastapi import Depends, HTTPException, status
 from schemas.discipline import bodies, params, responses
@@ -14,11 +15,13 @@ class DisciplineService:
         self,
         repo: DisciplineRepo = Depends(DisciplineRepo),
         group_repo: GroupRepo = Depends(GroupRepo),
+        teacher_repo: TeacherRepo = Depends(TeacherRepo),
         discipline_group_repo: DisciplineGroupRepo = Depends(DisciplineGroupRepo),
         discipline_teacher_repo: DisciplineTeacherRepo = Depends(DisciplineTeacherRepo),
     ) -> None:
         self.repo = repo
         self.group_repo = group_repo
+        self.teacher_repo = teacher_repo
         self.discipline_group_repo = discipline_group_repo
         self.discipline_teacher_repo = discipline_teacher_repo
 
@@ -64,7 +67,7 @@ class DisciplineService:
         )
 
     async def create_group(self, pms: params.CreateGroup) -> responses.CreateGroup:
-        if not (await self.repo.filter_one(discipline_id=pms.id)):
+        if not (await self.repo.filter_one(id=pms.id)):
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
         if not (await self.group_repo.get(pms.group_id)):
@@ -117,10 +120,10 @@ class DisciplineService:
         await self.discipline_group_repo.delete(model)
 
     async def create_teacher(self, pms: params.CreateTeacher) -> responses.CreateTeacher:
-        if not (await self.repo.filter_one(discipline_id=pms.id)):
+        if not (await self.repo.filter_one(id=pms.id)):
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-        if not (await self.discipline_teacher_repo.get(pms.teacher_id)):
+        if not (await self.teacher_repo.get(pms.teacher_id)):
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
         discipline_teacher = await self.discipline_teacher_repo.filter_one(
