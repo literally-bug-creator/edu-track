@@ -2,16 +2,16 @@ import { LockOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Typography, Alert } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { register } from '../../api/auth';
 
 const { Title } = Typography;
 
 interface RegisterValues {
-  lastName: string;
-  firstName: string;
-  middleName: string;
-  email: string;
+  username: string; // email
   password: string;
-  confirmPassword: string;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
 }
 
 const RegisterPage = () => {
@@ -24,14 +24,9 @@ const RegisterPage = () => {
       setLoading(true);
       setError('');
       
-      const mockApiCall = (): Promise<{ status: number }> => 
-        new Promise((resolve) => setTimeout(() => resolve({ status: 200 }), 1000));
-
-      const response = await mockApiCall();
-      
-      if (response.status === 200) {
-        navigate('/login');
-      }
+      const { ...registerData } = values;
+      await register(registerData);
+      navigate('/student');
     } catch (err) {
       setError('Ошибка при регистрации');
     } finally {
@@ -80,7 +75,7 @@ const RegisterPage = () => {
         >
           <Form.Item
             label="Фамилия"
-            name="lastName"
+            name="last_name"
             rules={[{ required: true, message: 'Пожалуйста, введите фамилию!' }]}
           >
             <Input
@@ -91,7 +86,7 @@ const RegisterPage = () => {
 
           <Form.Item
             label="Имя"
-            name="firstName"
+            name="first_name"
             rules={[{ required: true, message: 'Пожалуйста, введите имя!' }]}
           >
             <Input
@@ -102,7 +97,7 @@ const RegisterPage = () => {
 
           <Form.Item
             label="Отчество"
-            name="middleName"
+            name="middle_name"
             rules={[{ required: true, message: 'Пожалуйста, введите отчество!' }]}
           >
             <Input
@@ -113,7 +108,7 @@ const RegisterPage = () => {
 
           <Form.Item
             label="Email"
-            name="email"
+            name="username"
             rules={[
               { required: true, message: 'Пожалуйста, введите email!' },
               { type: 'email', message: 'Некорректный email' }

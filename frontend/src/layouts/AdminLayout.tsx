@@ -5,8 +5,11 @@ import {
   UserOutlined, 
   TeamOutlined, 
   BookOutlined,
-  LogoutOutlined 
+  LogoutOutlined,
+  BranchesOutlined,
+  PartitionOutlined
 } from '@ant-design/icons';
+import { logout } from '../api/auth';
 
 const { Content, Header } = Layout;
 
@@ -26,19 +29,29 @@ const AdminLayout = () => {
       label: 'Пользователи',
     },
     {
+      key: '/admin/units',
+      icon: <PartitionOutlined />,
+      label: 'Подразделения',
+    },
+    {
+      key: '/admin/tracks',
+      icon: <BranchesOutlined />,
+      label: 'Направления',
+    },
+    {
       key: '/admin/groups',
       icon: <TeamOutlined />,
-      label: 'Создать группу',
+      label: 'Группы',
     },
     {
       key: '/admin/disciplines',
       icon: <BookOutlined />,
-      label: 'Создать дисциплину',
+      label: 'Дисциплины',
     },
   ];
 
   const handleLogout = () => {
-    navigate('/login');
+    logout();
   };
 
   return (

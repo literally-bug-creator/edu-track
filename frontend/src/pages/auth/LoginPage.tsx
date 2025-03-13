@@ -2,6 +2,7 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Typography, Alert } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { login, getCurrentUser } from '../../api/auth';
 
 const { Title } = Typography;
 
@@ -21,15 +22,18 @@ const LoginPage = () => {
       setLoading(true);
       setError('');
       
-      // Моковый запрос - замените на реальный API-вызов
-      const mockApiCall = (): Promise<{ status: number }> => 
-        new Promise((resolve) => setTimeout(() => resolve({ status: 200 }), 1000));
-
-      const response = await mockApiCall();
+      await login(values.email, values.password);
       
-      if (response.status === 200) {
-        // Перенаправление в зависимости от роли
-        navigate('/dashboard');
+      // Получаем информацию о пользователе
+      const userInfo = await getCurrentUser();
+      
+      // Сразу перенаправляем на нужную страницу
+      if (userInfo.role === 0) {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (userInfo.role === 1) {
+        navigate('/teacher/dashboard', { replace: true });
+      } else {
+        navigate('/student/dashboard', { replace: true });
       }
     } catch (err) {
       setError('Неверный email или пароль');
