@@ -92,7 +92,7 @@ async def list(
     },
 )
 async def list_disciplines(
-    pms: params.List = Depends(),
+    pms: params.ListDisciplines = Depends(),
     user: User = Depends(get_user_has_role([UserRole.ADMIN, UserRole.TEACHER])),
     service: TeacherService = Depends(TeacherService),
 ):
