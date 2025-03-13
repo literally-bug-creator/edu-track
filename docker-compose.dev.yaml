@@ -15,14 +15,14 @@ x-service-defaults: &service-defaults
 
 
 services:
-  frontend:
-    build: ./frontend
-    ports:
-      - ${FRONTEND_PORT}:8000
-    depends_on:
-      api:
-        condition: service_healthy
-    <<: *logging
+  # frontend:
+  #   build: ./frontend
+  #   ports:
+  #     - ${FRONTEND_PORT}:8000
+  #   depends_on:
+  #     api:
+  #       condition: service_healthy
+  #   <<: *logging
 
   api:
     build: ./api
