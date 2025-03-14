@@ -5,7 +5,7 @@ from database.repos import DisciplineGroupRepo, MarkRepo, StudentRepo
 from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
 from schemas.discipline.common import Discipline, DisciplineMarksAvg
-from schemas.mark.common import Mark, MarksDistribution, MarkType, AvgMarkByDate
+from schemas.mark.common import AvgMarkByDate, Mark, MarksDistribution, MarkType
 from schemas.student import bodies, params, responses
 from schemas.student.common import Student
 
@@ -153,6 +153,42 @@ class StudentService:
             total=total,
         )
 
+    # async def list_disciplines_marks_avg(
+    #     self,
+    #     pms: params.ListDisciplinesMarksAvg,
+    #     user: User,
+    # ) -> responses.ListDisciplinesMarksAvg:
+    #     if (user.role == UserRole.STUDENT) and (user.id != pms.id):
+    #         raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
+    #     if not (student := await self.repo.filter_one(id=pms.id)):
+    #         return responses.ListDisciplinesMarksAvg(items=[], total=0)
+
+    #     marks, _ = await self.mark_repo.list(
+    #         params=pms,
+    #         student_id=student.id,
+    #     )
+
+    #     discipline_marks = defaultdict(list)
+
+    #     for mark in marks:
+    #         discipline_marks[mark.discipline_id].append(mark.type)
+
+    #     discipline_marks_avg = []
+    #     for discipline_id, grades in discipline_marks.items():
+    #         avg_marks = mean(grades)
+    #         discipline_marks_avg.append(
+    #             DisciplineMarksAvg(
+    #                 discipline_id=discipline_id,
+    #                 avg_marks=avg_marks,
+    #             )
+    #         )
+
+    #     return responses.ListDisciplinesMarksAvg(
+    #         items=discipline_marks_avg,
+    #         total=len(discipline_marks_avg),
+    #     )
+
     async def list_disciplines_marks_avg(
         self,
         pms: params.ListDisciplinesMarksAvg,
@@ -164,29 +200,11 @@ class StudentService:
         if not (student := await self.repo.filter_one(id=pms.id)):
             return responses.ListDisciplinesMarksAvg(items=[], total=0)
 
-        marks, _ = await self.mark_repo.list(
-            params=pms,
-            student_id=student.id,
-        )
-
-        discipline_marks = defaultdict(list)
-
-        for mark in marks:
-            discipline_marks[mark.discipline_id].append(mark.type)
-
-        discipline_marks_avg = []
-        for discipline_id, grades in discipline_marks.items():
-            avg_marks = mean(grades)
-            discipline_marks_avg.append(
-                DisciplineMarksAvg(
-                    discipline_id=discipline_id,
-                    avg_marks=avg_marks,
-                )
-            )
+        items = await self.mark_repo.get_average_marks_per_discipline(student.id)
 
         return responses.ListDisciplinesMarksAvg(
-            items=discipline_marks_avg,
-            total=len(discipline_marks_avg),
+            items=[DisciplineMarksAvg(item) for item in items],
+            total=len(items),
         )
 
     async def list_marks_avg_by_date(

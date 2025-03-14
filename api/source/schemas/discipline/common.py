@@ -12,7 +12,8 @@ class Discipline(BaseModel):
 
 class DisciplineMarksAvg(BaseModel):
     discipline_id: int
-    avg_marks: float
+    discipline_name: str
+    avg_mark: float
 
 
 class DisciplineGroup(BaseModel):
