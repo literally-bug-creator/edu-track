@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Iterable
 
-from sqlalchemy import func, select, cast, Integer
+from sqlalchemy import Integer, cast, func, select
 
 from database.models import Discipline, Mark
 
@@ -24,21 +24,15 @@ class MarkRepo(BaseRepo):
         )
         return (await self.execute(query)).scalars()
 
-    async def get_average_marks_per_discipline(self, student_id: int):
+    async def get_marks_per_discipline(self, student_id: int):
         result = await self.session.execute(
             select(
                 Discipline.id,
                 Discipline.name,
-                func.avg(cast(Mark.type, Integer)).label('avg_mark'),
+                Mark.type,
             )
             .join(Mark, Discipline.id == Mark.discipline_id)
             .filter(Mark.student_id == student_id)
-            .group_by(Discipline.id, Discipline.name)
         )
 
-        average_marks = [
-            {"discipline_id": row[0], "discipline_name": row[1], "avg_mark": row[2]}
-            for row in result.fetchall()
-        ]
-
-        return average_marks
+        return result.fetchall()

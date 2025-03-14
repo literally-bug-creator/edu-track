@@ -199,11 +199,29 @@ class StudentService:
         if not (student := await self.repo.filter_one(id=pms.id)):
             return responses.ListDisciplinesMarksAvg(items=[], total=0)
 
-        items = await self.mark_repo.get_average_marks_per_discipline(student.id)
+        marks = await self.mark_repo.get_marks_per_discipline(student.id)
 
-        return responses.ListDisciplinesMarksAvg(
-            items=[DisciplineMarksAvg(item) for item in items],
-            total=len(items),
+        disciplines_marks = defaultdict(list)
+        disciplines_names = {}
+
+        for discipline_id, discipline_name, mark in marks:
+            disciplines_marks[discipline_id].append(mark)
+            disciplines_names[discipline_id] = discipline_name
+
+        average_marks = []
+        for discipline_id, marks_list in disciplines_marks.items():
+            avg_mark = sum(marks_list) / len(marks_list)
+            average_marks.append(
+                DisciplineMarksAvg(
+                    discipline_id=discipline_id,
+                    discipline_name=discipline_name,
+                    avg_mark=avg_mark,
+                )
+            )
+
+        return responses.ListDisciplssinesMarksAvg(
+            items=average_marks,
+            total=len(average_marks),
         )
 
     async def list_marks_avg_by_date(
