@@ -161,7 +161,7 @@ class TeacherService:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
         group = None
-        items, _ = await self.discip_group_repo.list(group_id=pms.group_id)
+        items = await self.discip_group_repo.filter(group_id=pms.group_id)
         for item in items:
             disc_teacher = await self.discip_teacher_repo.filter_one(
                 discipline_id=item.discipline_id,
