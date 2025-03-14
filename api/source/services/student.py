@@ -176,11 +176,11 @@ class StudentService:
 
         discipline_marks_avg = []
         for discipline_id, grades in discipline_marks.items():
-            average_grade = mean(grades)
+            avg_marks = mean(grades)
             discipline_marks_avg.append(
                 DisciplineMarksAvg(
                     discipline_id=discipline_id,
-                    average_grade=average_grade,
+                    avg_marks=avg_marks,
                 )
             )
 
