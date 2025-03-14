@@ -38,3 +38,13 @@ class MarkRepo(BaseRepo):
         )
 
         return result.fetchall()
+
+    async def get_student_extended_marks(self, student_id: int):
+        results = (
+            self.session.query(Mark, Discipline.name.label("discipline_name"))
+            .join(Discipline, Discipline.id == Mark.discipline_id)
+            .filter(Mark.student_id == student_id)
+            .all()
+        )
+
+        return results

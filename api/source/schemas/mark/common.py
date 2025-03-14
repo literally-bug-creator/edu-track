@@ -12,6 +12,10 @@ class Mark(BaseModel):
     date: datetime = utcnow()
 
 
+class ExtendedMark(Mark):
+    discipline_name: str
+
+
 class MarksDistribution(BaseModel):
     items: dict[MarkType, int]
 

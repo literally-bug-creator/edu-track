@@ -4,7 +4,7 @@ from database.repos import DisciplineGroupRepo, MarkRepo, StudentRepo
 from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
 from schemas.discipline.common import Discipline, DisciplineMarksAvg
-from schemas.mark.common import AvgMarkByDate, Mark, MarksDistribution, MarkType
+from schemas.mark.common import AvgMarkByDate, Mark, MarksDistribution, MarkType, ExtendedMark
 from schemas.student import bodies, params, responses
 from schemas.student.common import Student
 
@@ -120,14 +120,13 @@ class StudentService:
                 total=0,
             )
 
-        items, total = await self.mark_repo.list(
-            params=pms,
-            student_id=pms.id,
-            **pms.filters.model_dump(exclude_none=True),
-        )
+        extended_marks = []
+        marks = await self.mark_repo.get_student_extended_marks(pms.id)
+        for mark, discipline_name in marks:
+            extended_marks.append(ExtendedMark(mark.model_dump(), discipline_name=discipline_name))
         return responses.ListMarks(
-            items=[Mark.model_validate(obj, from_attributes=True) for obj in items],
-            total=total,
+            items=extended_marks,
+            total=len(extended_marks),
         )
 
     async def list_disciplines(
