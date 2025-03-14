@@ -205,6 +205,8 @@ class StudentService:
             pms.date_to,
         )
 
+        print(marks)
+
         date_marks = defaultdict(list)
         for mark in marks:
             date_marks[mark.date].append(mark.type)
