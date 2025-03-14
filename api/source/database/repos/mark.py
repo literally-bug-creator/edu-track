@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Iterable
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, cast, Integer
 
 from database.models import Discipline, Mark
 
@@ -29,7 +29,7 @@ class MarkRepo(BaseRepo):
             select(
                 Discipline.id,
                 Discipline.name,
-                func.avg(Mark.type).label("avg_mark"),
+                func.avg(cast(Mark.type, Integer)).label('avg_mark'),
             )
             .join(Mark, Discipline.id == Mark.discipline_id)
             .filter(Mark.student_id == student_id)

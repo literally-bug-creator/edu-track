@@ -1,5 +1,4 @@
 from collections import defaultdict
-from statistics import mean
 
 from database.repos import DisciplineGroupRepo, MarkRepo, StudentRepo
 from fastapi import Depends, HTTPException, status
