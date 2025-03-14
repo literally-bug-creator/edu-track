@@ -125,9 +125,12 @@ class StudentService:
         for mark, discipline_name in marks:
             extended_marks.append(
                 ExtendedMark.model_validate(
-                    mark,
+                    discipline_id=mark.discipline_id,
+                    student_id=mark.student_id,
+                    work_type=mark.work_type,
+                    type=mark.type,
+                    date=mark.date,
                     discipline_name=discipline_name,
-                    from_attributes=True,
                 )
             )
         return responses.ListMarks(
