@@ -219,7 +219,7 @@ class StudentService:
                 )
             )
 
-        return responses.ListDisciplssinesMarksAvg(
+        return responses.ListDisciplinesMarksAvg(
             items=average_marks,
             total=len(average_marks),
         )
