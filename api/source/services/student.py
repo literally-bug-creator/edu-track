@@ -124,7 +124,7 @@ class StudentService:
         marks = await self.mark_repo.get_student_extended_marks(pms.id)
         for mark, discipline_name in marks:
             extended_marks.append(
-                ExtendedMark.model_validate(
+                ExtendedMark(
                     discipline_id=mark.discipline_id,
                     student_id=mark.student_id,
                     work_type=mark.work_type,
