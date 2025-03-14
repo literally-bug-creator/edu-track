@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from enums import WorkType, MarkType
-from datetime import datetime, timezone
 from fastapi import Query
+from utils.dt import utcnow, datetime
 
 
 class Mark(BaseModel):
@@ -9,7 +9,7 @@ class Mark(BaseModel):
     student_id: int
     work_type: WorkType
     type: MarkType
-    date: datetime = datetime.now(timezone.utc)
+    date: datetime = utcnow()
 
 
 class MarksDistribution(BaseModel):
