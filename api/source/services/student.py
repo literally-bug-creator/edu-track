@@ -5,7 +5,7 @@ from database.repos import DisciplineGroupRepo, MarkRepo, StudentRepo
 from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
 from schemas.discipline.common import Discipline, DisciplineMarksAvg
-from schemas.marks.common import Mark, MarksDistribution, MarkType, AvgMarkByDate
+from schemas.mark.common import Mark, MarksDistribution, MarkType, AvgMarkByDate
 from schemas.student import bodies, params, responses
 from schemas.student.common import Student
 

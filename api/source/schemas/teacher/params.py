@@ -26,3 +26,8 @@ class ListDisciplines(ListParams):
 class ReadDisciplineAvgMark(BaseModel):
     id: int = Path()
     discipline_id: int = Path()
+
+
+class ReadGroup(BaseModel):
+    id: int = Path()
+    group_id: int = Path()

@@ -1,9 +1,17 @@
-from database.repos import DisciplineRepo, DisciplineTeacherRepo, TeacherRepo, MarkRepo
+from database.repos import (
+    DisciplineGroupRepo,
+    DisciplineRepo,
+    DisciplineTeacherRepo,
+    MarkRepo,
+    TeacherRepo,
+    GroupRepo,
+)
 from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
 from schemas.discipline.common import Discipline
 from schemas.teacher import bodies, params, responses
 from schemas.teacher.common import Teacher
+from schemas.group.common import Group
 
 
 class TeacherService:
@@ -11,13 +19,17 @@ class TeacherService:
         self,
         repo: TeacherRepo = Depends(TeacherRepo),
         mark_repo: MarkRepo = Depends(MarkRepo),
+        group_repo: GroupRepo = Depends(GroupRepo),
         discip_repo: DisciplineRepo = Depends(DisciplineRepo),
         discip_teacher_repo: DisciplineTeacherRepo = Depends(DisciplineTeacherRepo),
+        discip_group_repo: DisciplineGroupRepo = Depends(DisciplineGroupRepo),
     ) -> None:
         self.repo = repo
         self.mark_repo = mark_repo
+        self.group_repo = group_repo
         self.discip_repo = discip_repo
         self.discip_teacher_repo = discip_teacher_repo
+        self.discip_group_repo = discip_group_repo
 
     async def read(
         self,
@@ -116,8 +128,10 @@ class TeacherService:
             items=disciplines,
             total=len(disciplines),
         )
-    
-    async def read_discipline_avg_mark(self, pms: params.ReadDisciplineAvgMark, user: User) -> responses.ReadDisciplineAvgMark:
+
+    async def read_discipline_avg_mark(
+        self, pms: params.ReadDisciplineAvgMark, user: User
+    ) -> responses.ReadDisciplineAvgMark:
         discipline = await self.discip_repo.get(pms.discipline_id)
 
         if discipline is None:
@@ -125,8 +139,8 @@ class TeacherService:
 
         if (user.role == UserRole.TEACHER) and (user.id != pms.id):
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
-        
-        if (user.role == UserRole.TEACHER):
+
+        if user.role == UserRole.TEACHER:
             if not await self.discip_teacher_repo.filter_one(teacher_id=user.id):
                 raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
@@ -137,3 +151,31 @@ class TeacherService:
             marks_value += mark.type.value
 
         return responses.ReadAvgMark(item=marks_value / total)
+
+    async def read_group(
+        self,
+        pms: params.ReadGroup,
+        user: User,
+    ) -> responses.ReadGroup:
+        if (user.role == UserRole.TEACHER) and (user.id != pms.id):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
+        group = None
+        items, _ = await self.discip_group_repo.list(group_id=pms.group_id)
+        for item in items:
+            disc_teacher = await self.discip_teacher_repo.filter_one(
+                discipline_id=item.discipline_id,
+            )
+
+            if disc_teacher is None:
+                continue
+
+            if disc_teacher.teacher_id == pms.id:
+                group = await self.group_repo.get(pms.group_id)
+                break
+        
+        if group is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+        scheme = Group.model_validate(group, from_attributes=True)
+        return responses.ReadGroup(item=scheme)

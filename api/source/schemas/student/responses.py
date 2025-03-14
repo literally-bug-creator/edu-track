@@ -1,5 +1,5 @@
 from .common import Student
-from schemas.marks.common import Mark, MarksDistribution, AvgMarkByDate
+from schemas.mark.common import Mark, MarksDistribution, AvgMarkByDate
 from schemas.discipline.common import Discipline, DisciplineMarksAvg
 from schemas.common.crud import CRUDResponse
 from schemas.common.list import ListResponse

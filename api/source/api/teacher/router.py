@@ -115,3 +115,21 @@ async def read_discipline_avg_mark(
     service: TeacherService = Depends(TeacherService),
 ):
     return await service.read(pms, user)
+
+
+@router.get(
+    path=EPath.READ_GROUP,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {"model": responses.ReadGroup},
+        status.HTTP_404_NOT_FOUND: {},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {},
+        status.HTTP_503_SERVICE_UNAVAILABLE: {},
+    },
+)
+async def read_group(
+    pms: params.ReadGroup = Depends(),
+    user: User = Depends(get_user_has_role([UserRole.ADMIN, UserRole.TEACHER])),
+    service: TeacherService = Depends(TeacherService),
+):
+    return await service.read_group(pms, user)

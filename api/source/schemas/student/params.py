@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import Depends, Path
 from pydantic import BaseModel
 from schemas.common.list import ListParams
-from schemas.marks.common import MarkFilters
+from schemas.mark.common import MarkFilters
 
 
 class Read(BaseModel):
