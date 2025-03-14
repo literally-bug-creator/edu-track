@@ -152,42 +152,6 @@ class StudentService:
             total=total,
         )
 
-    # async def list_disciplines_marks_avg(
-    #     self,
-    #     pms: params.ListDisciplinesMarksAvg,
-    #     user: User,
-    # ) -> responses.ListDisciplinesMarksAvg:
-    #     if (user.role == UserRole.STUDENT) and (user.id != pms.id):
-    #         raise HTTPException(status.HTTP_401_UNAUTHORIZED)
-
-    #     if not (student := await self.repo.filter_one(id=pms.id)):
-    #         return responses.ListDisciplinesMarksAvg(items=[], total=0)
-
-    #     marks, _ = await self.mark_repo.list(
-    #         params=pms,
-    #         student_id=student.id,
-    #     )
-
-    #     discipline_marks = defaultdict(list)
-
-    #     for mark in marks:
-    #         discipline_marks[mark.discipline_id].append(mark.type)
-
-    #     discipline_marks_avg = []
-    #     for discipline_id, grades in discipline_marks.items():
-    #         avg_marks = mean(grades)
-    #         discipline_marks_avg.append(
-    #             DisciplineMarksAvg(
-    #                 discipline_id=discipline_id,
-    #                 avg_marks=avg_marks,
-    #             )
-    #         )
-
-    #     return responses.ListDisciplinesMarksAvg(
-    #         items=discipline_marks_avg,
-    #         total=len(discipline_marks_avg),
-    #     )
-
     async def list_disciplines_marks_avg(
         self,
         pms: params.ListDisciplinesMarksAvg,
@@ -241,18 +205,16 @@ class StudentService:
             pms.date_to,
         )
 
-        marks_by_date = defaultdict(list)
-        for mark in marks:
-            marks_by_date[mark.date.date()].append(mark.type.value)
+        date_marks = defaultdict(list)
+        for mark_date, mark_type in marks:
+            date_marks[mark_date].append(mark_type)
 
-        average_marks = [
-            AvgMarkByDate(date=date, value=sum(scores) / len(scores))
-            for date, scores in marks_by_date.items()
-        ]
-
-        average_marks.sort(key=lambda x: x.date)
+        average_marks_per_date = []
+        for mark_date, marks_list in date_marks.items():
+            avg_mark = sum(marks_list) / len(marks_list)
+            average_marks_per_date.append(AvgMarkByDate(date=mark_date, value=avg_mark))
 
         return responses.ListMarksAvgByDate(
-            items=average_marks,
-            total=len(average_marks),
+            items=average_marks_per_date,
+            total=len(average_marks_per_date),
         )

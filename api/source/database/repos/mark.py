@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Iterable
 
-from sqlalchemy import Integer, cast, func, select
+from sqlalchemy import select
 
 from database.models import Discipline, Mark
 
@@ -17,12 +17,14 @@ class MarkRepo(BaseRepo):
         date_from: datetime,
         date_to: datetime,
     ) -> Iterable[MODEL] | Any:
-        query = self._get_query().filter(
-            Mark.student_id == student_id,
-            Mark.date >= date_from,
-            Mark.date <= date_to,
+        result = await self.session.execute(
+            select(Mark)
+            .filter(Mark.student_id == student_id)
+            .filter(Mark.date >= date_from)
+            .filter(Mark.date <= date_to)
         )
-        return (await self.execute(query)).scalars()
+
+        return result.fetchall()
 
     async def get_marks_per_discipline(self, student_id: int):
         result = await self.session.execute(
