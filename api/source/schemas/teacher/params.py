@@ -31,3 +31,8 @@ class ReadDisciplineAvgMark(BaseModel):
 class ReadGroup(BaseModel):
     id: int = Path()
     group_id: int = Path()
+
+
+class ListGroupStudents(ListParams):
+    id: int = Path()
+    group_id: int = Path()

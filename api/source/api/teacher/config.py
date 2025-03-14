@@ -13,3 +13,4 @@ class EPath(StrEnum):
     LIST_DISCIPLINES = "/{id}/disciplines"
     READ_DISCIPLINE_AVG_MARK = "/{id}/disciplines/{discipline_id}/avg-mark"
     READ_GROUP = "/{id}/groups/{group_id}"
+    LIST_GROUP_STUDENTS = "/{id}/groups/{group_id}/students"

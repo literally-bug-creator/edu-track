@@ -2,16 +2,18 @@ from database.repos import (
     DisciplineGroupRepo,
     DisciplineRepo,
     DisciplineTeacherRepo,
-    MarkRepo,
-    TeacherRepo,
     GroupRepo,
+    MarkRepo,
+    StudentRepo,
+    TeacherRepo,
 )
 from fastapi import Depends, HTTPException, status
 from schemas.auth.common import User, UserRole
 from schemas.discipline.common import Discipline
+from schemas.group.common import Group
+from schemas.student.common import Student
 from schemas.teacher import bodies, params, responses
 from schemas.teacher.common import Teacher
-from schemas.group.common import Group
 
 
 class TeacherService:
@@ -20,6 +22,7 @@ class TeacherService:
         repo: TeacherRepo = Depends(TeacherRepo),
         mark_repo: MarkRepo = Depends(MarkRepo),
         group_repo: GroupRepo = Depends(GroupRepo),
+        students_repo: StudentRepo = Depends(StudentRepo),
         discip_repo: DisciplineRepo = Depends(DisciplineRepo),
         discip_teacher_repo: DisciplineTeacherRepo = Depends(DisciplineTeacherRepo),
         discip_group_repo: DisciplineGroupRepo = Depends(DisciplineGroupRepo),
@@ -27,6 +30,7 @@ class TeacherService:
         self.repo = repo
         self.mark_repo = mark_repo
         self.group_repo = group_repo
+        self.students_repo = students_repo
         self.discip_repo = discip_repo
         self.discip_teacher_repo = discip_teacher_repo
         self.discip_group_repo = discip_group_repo
@@ -173,9 +177,49 @@ class TeacherService:
             if disc_teacher.teacher_id == pms.id:
                 group = await self.group_repo.get(pms.group_id)
                 break
-        
+
         if group is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
         scheme = Group.model_validate(group, from_attributes=True)
         return responses.ReadGroup(item=scheme)
+
+    async def list_group_students(
+        self,
+        pms: params.ListGroupStudents,
+        user: User,
+    ) -> responses.ListGroupStudents:
+        if (user.role == UserRole.TEACHER) and (user.id != pms.id):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
+        group = None
+        items = await self.discip_group_repo.filter(group_id=pms.group_id)
+        for item in items:
+            disc_teacher = await self.discip_teacher_repo.filter_one(
+                discipline_id=item.discipline_id,
+            )
+
+            if disc_teacher is None:
+                continue
+
+            if disc_teacher.teacher_id == pms.id:
+                group = await self.group_repo.get(pms.group_id)
+                break
+
+        if group is None:
+            return responses.ListGroupStudents(items=[], total=0)
+
+        students, total = await self.students_repo.list(
+            params=pms,
+            group_id=pms.group_id,
+        )
+
+        items = [
+            Student.model_validate(student, from_attributes=True)
+            for student in students
+        ]
+
+        return responses.ListGroupStudents(
+            items=items,
+            total=total,
+        )
