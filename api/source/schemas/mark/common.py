@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from enums import WorkType, MarkType
-from datetime import datetime, date, timezone
+from datetime import datetime, timezone
 from fastapi import Query
 
 
@@ -22,5 +22,5 @@ class MarkFilters(BaseModel):
 
 
 class AvgMarkByDate(BaseModel):
-    date: date
+    date: datetime
     value: float

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 
 from fastapi import Depends, Path
 from pydantic import BaseModel
@@ -41,5 +41,5 @@ class ListDisciplinesMarksAvg(ListParams):
 
 class ListMarksAvgByDate(BaseModel):
     id: int = Path()
-    date_from: date | None
-    date_to: date | None
+    date_from: datetime | None
+    date_to: datetime | None
