@@ -121,7 +121,7 @@ class StudentService:
             )
 
         extended_marks = []
-        marks = await self.mark_repo.get_student_extended_marks(pms.id)
+        marks = await self.mark_repo.get_student_extended_marks(pms, pms.id)
         for mark, discipline_name in marks:
             extended_marks.append(
                 ExtendedMark(

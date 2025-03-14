@@ -7,6 +7,8 @@ from database.models import Discipline, Mark
 
 from .base import BaseRepo
 
+from schemas.common.list import ListParams
+
 
 class MarkRepo(BaseRepo):
     MODEL = Mark
@@ -39,11 +41,13 @@ class MarkRepo(BaseRepo):
 
         return result.fetchall()
 
-    async def get_student_extended_marks(self, student_id: int):
-        stmt = (
+    async def get_student_extended_marks(self, params: ListParams, student_id: int):
+        query = (
             select(Mark, Discipline.name.label("discipline_name"))
             .join(Discipline, Discipline.id == Mark.discipline_id)
             .filter(Mark.student_id == student_id)
         )
-
-        return await self.session.execute(stmt)
+        query = self._apply_sort(query, params.sort)
+        query = self._apply_pagination(query, params.pagination)
+        items = await self.execute(query)
+        return items

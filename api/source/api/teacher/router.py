@@ -114,7 +114,7 @@ async def read_discipline_avg_mark(
     user: User = Depends(get_user_has_role([UserRole.ADMIN, UserRole.TEACHER])),
     service: TeacherService = Depends(TeacherService),
 ):
-    return await service.read(pms, user)
+    return await service.read_discipline_avg_mark(pms, user)
 
 
 @router.get(

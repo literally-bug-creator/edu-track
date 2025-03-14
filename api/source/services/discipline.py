@@ -172,9 +172,9 @@ class DisciplineService:
         return responses.CreateTeacher(item=scheme)
 
     async def read_teacher(self, pms: params.ReadTeacher) -> responses.ReadTeacher:
-        model = await self.discipline_group_repo.filter_one(
+        model = await self.discipline_teacher_repo.filter_one(
             discipline_id=pms.id,
-            group_id=pms.group_id,
+            teacher_id=pms.teacher_id,
         )
 
         if model is None:

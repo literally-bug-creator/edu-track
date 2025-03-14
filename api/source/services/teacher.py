@@ -148,13 +148,19 @@ class TeacherService:
             if not await self.discip_teacher_repo.filter_one(teacher_id=user.id):
                 raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
-        marks, total = await self.mark_repo.list(discipline_id=pms.id)
+        marks = await self.mark_repo.filter(discipline_id=pms.discipline_id)
         marks_value = 0
+        total = 0
 
         for mark in marks:
             marks_value += mark.type.value
+            total += 1
 
-        return responses.ReadAvgMark(item=marks_value / total)
+        avg_mark = 0
+        if total > 0:
+            avg_mark = marks_value / total
+
+        return responses.ReadDisciplineAvgMark(item=avg_mark)
 
     async def read_group(
         self,
