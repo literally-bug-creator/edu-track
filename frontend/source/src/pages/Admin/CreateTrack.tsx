@@ -38,7 +38,7 @@ const CreateTrack = () => {
       const { data } = await httpClient.get('/tracks');
       const tracks = Array.isArray(data) ? data : data.items || [];
       
-      const formattedTracks = await Promise.all(tracks.map(async track => {
+      const formattedTracks = await Promise.all(tracks.map(async (track: Track) => {
         try {
           const unitResponse = await httpClient.get(`/units/${track.unit_id}`);
           return {

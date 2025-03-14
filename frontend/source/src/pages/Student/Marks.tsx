@@ -28,13 +28,6 @@ interface MarksParams {
   work_type?: number;
 }
 
-interface DisciplinesParams {
-  page: number;
-  perPage: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
 enum WorkType {
   HOMEWORK = 0,
   PRACTICAL_WORK = 1,
@@ -165,15 +158,16 @@ const Marks = () => {
 
   const handleTableChange = (
     pagination: TablePaginationConfig,
-    _: any,
-    sorter: SorterResult<Mark>
+    _: Record<string, unknown>,
+    sorter: SorterResult<Mark> | SorterResult<Mark>[]
   ) => {
+    const singleSorter = Array.isArray(sorter) ? sorter[0] : sorter;
     setParams({
       ...params,
       page: pagination.current || 1,
       perPage: pagination.pageSize || 10,
-      sortBy: sorter.field as string,
-      sortOrder: sorter.order === 'descend' ? 'desc' : 'asc'
+      sortBy: singleSorter.field as string,
+      sortOrder: singleSorter.order === 'descend' ? 'desc' : 'asc'
     });
   };
 

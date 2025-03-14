@@ -1,7 +1,6 @@
 import { Layout, Menu, Button } from 'antd';
 import { useNavigate, useLocation, Outlet, Link } from 'react-router-dom';
 import { 
-  DashboardOutlined, 
   UserOutlined, 
   TeamOutlined, 
   BookOutlined,

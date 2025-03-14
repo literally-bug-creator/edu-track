@@ -11,15 +11,6 @@ import httpClient from '../../../api/httpClient';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale);
 
-interface MarksQueryParams {
-  student_id: number;
-  page?: number;
-  perPage?: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-  discipline_id?: number;
-}
-
 const GradesDistribution = () => {
   const [chartData, setChartData] = useState({
     labels: ['Отлично (5)', 'Хорошо (4)', 'Удовлетворительно (3)', 'Неудовлетворительно (2)'],

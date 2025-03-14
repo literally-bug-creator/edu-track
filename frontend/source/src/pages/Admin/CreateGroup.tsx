@@ -34,12 +34,12 @@ const CreateGroup = () => {
     }
   ];
 
-  const fetchExistingGroups = async () => {
+  const fetchExistingGroups = async (): Promise<void> => {
     try {
       const { data } = await httpClient.get('/groups');
       const groups = Array.isArray(data) ? data : data.items || [];
       
-      const formattedGroups = await Promise.all(groups.map(async group => {
+      const formattedGroups = await Promise.all(groups.map(async (group: Group) => {
         try {
           const trackResponse = await httpClient.get(`/tracks/${group.track_id}`);
           return {

@@ -9,7 +9,6 @@ import StudentLayout from "../layouts/StudentLayout";
 import TeacherLayout from "../layouts/TeacherLayout";
 import GradeAssignment from "../pages/Teacher/GradeAssignment"; // удалить импорт TeacherDashboard
 import AdminLayout from "../layouts/AdminLayout";
-import TeacherRequests from "../pages/Admin/TeacherRequests";
 import CreateGroup from "../pages/Admin/CreateGroup";
 import CreateDiscipline from "../pages/Admin/CreateDiscipline";
 import UserManagement from "../pages/Admin/UserManagement";
@@ -19,10 +18,6 @@ import DisciplineAssignment from "../pages/Admin/DisciplineAssignment";
 import StudentAssignment from '../pages/Admin/StudentAssignment';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
-
-interface AdminRouteProps {
   children: React.ReactNode;
 }
 
@@ -61,42 +56,6 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!isAuth) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{children}</>;
-};
-
-const AdminRoute = ({ children }: AdminRouteProps) => {
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAdminAccess = async () => {
-      try {
-        if (!isAuthenticated()) {
-          setIsAdmin(false);
-          setLoading(false);
-          return;
-        }
-
-        const user = await getCurrentUser();
-        setIsAdmin(user.role === 0);
-      } catch {
-        setIsAdmin(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAdminAccess();
-  }, []);
-
-  if (loading) {
-    return <div>Загрузка...</div>;
-  }
-
-  if (!isAdmin) {
     return <Navigate to="/login" replace />;
   }
 
@@ -260,7 +219,6 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { path: 'requests', element: <TeacherRequests /> },
       { path: 'users', element: <UserManagement /> },
       { path: 'groups', element: <CreateGroup /> },
       { path: 'disciplines', element: <CreateDiscipline /> },
@@ -269,6 +227,10 @@ const router = createBrowserRouter([
       { path: 'discipline-assignment', element: <DisciplineAssignment /> },
       { path: 'student-assignment', element: <StudentAssignment /> },
     ],
+  },
+  {
+    path: '*',
+    element: <Navigate to="/login" replace />
   }
 ]);
 

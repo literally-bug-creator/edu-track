@@ -16,18 +16,6 @@ interface Discipline {
   semester_number: number;
 }
 
-interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-}
-
-interface CreateDisciplineRequest {
-  name: string;
-  track_id: number;
-  course_number: number;
-  semester_number: number;
-}
-
 const CreateDiscipline = () => {
   const [units, setUnits] = useState<Unit[]>([]);
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
@@ -83,7 +71,7 @@ const CreateDiscipline = () => {
     loadInitialData();
   }, []);
 
-  const handleTableChange = (pagination: TablePaginationConfig, filters: any, sorter: any) => {
+  const handleTableChange = (pagination: TablePaginationConfig, sorter: any) => {
     fetchDisciplines(
       pagination.current,
       pagination.pageSize,
@@ -111,10 +99,9 @@ const CreateDiscipline = () => {
   ];
 
   const courseNumbers = [1, 2, 3, 4];
-  const semesterNumbers = [1, 2];
 
   // Функция для обновления доступных семестров при выборе курса
-  const updateAvailableSemesters = (courseNumber: number) => {
+  const updateAvailableSemesters = () => {
     setAvailableSemesters([1, 2]);
     // Сбрасываем выбранный семестр если он не входит в новый диапазон
     form.setFieldValue('semester_number', undefined);
@@ -164,7 +151,7 @@ const CreateDiscipline = () => {
           >
             <Select 
               placeholder="Выберите номер курса"
-              onChange={(value) => updateAvailableSemesters(value)}
+              onChange={updateAvailableSemesters}
             >
               {courseNumbers.map(num => (
                 <Select.Option key={num} value={num}>

@@ -2,9 +2,14 @@ import { useState, useEffect } from 'react';
 import { Card, Table, Select, message } from 'antd';
 import { getStudents, getGroups, updateStudent, Student } from '../../api/students';
 
+interface GroupResponse {
+  id: number;
+  number: string;
+}
+
 const StudentAssignment = () => {
   const [students, setStudents] = useState<Student[]>([]);
-  const [groups, setGroups] = useState<{id: number, name: string}[]>([]);
+  const [groups, setGroups] = useState<GroupResponse[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
@@ -29,7 +34,7 @@ const StudentAssignment = () => {
     fetchData();
   }, []);
 
-  const handleGroupChange = async (groupId: number | null, studentId: number) => {
+  const handleGroupChange = async (groupId: number | undefined, studentId: number) => {
     try {
       await updateStudent(studentId, { group_id: groupId });
       message.success('Группа успешно обновлена');

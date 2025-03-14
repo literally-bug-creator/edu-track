@@ -6,7 +6,7 @@ import httpClient from '../../api/httpClient';
 interface Student {
   id: number;
   fullName: string;
-  grade?: number;
+  grade?: number | null;
 }
 
 interface Teacher {
@@ -36,15 +36,6 @@ interface Group {
 interface DisciplinesResponse {
   items: Discipline[];
   total: number;
-}
-
-interface StudentsResponse {
-  items: Student[];
-  total: number;
-}
-
-interface GroupDetailResponse {
-  item: Group;
 }
 
 interface StudentResponse {
@@ -175,7 +166,8 @@ const GradeAssignment = () => {
         <InputNumber
           min={2}
           max={5}
-          onChange={(value) => {
+          value={student.grade}
+          onChange={(value: number | null) => {
             const updated = selectedStudents.map(s => 
               s.id === student.id ? { ...s, grade: value } : s
             );

@@ -6,7 +6,7 @@ COPY ./source/package*.json ./source/
 
 WORKDIR /project/source
 
-RUN npm i
+RUN npm install
 
 COPY ./source .
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Select, Button, message, Row, Col } from 'antd';
-import axios from 'axios';
+import { Card, Select, Button, message, Row, Col } from 'antd';
 import httpClient from '../../api/httpClient';
 
 interface Teacher {
@@ -66,14 +65,12 @@ const DisciplineAssignment: React.FC = () => {
     }
 
     try {
-      const response = await httpClient.put(`/disciplines/${selectedDiscipline}/teachers/${selectedTeacher}`);
-    //   console.log('Teacher assignment response:', response);
+      await httpClient.put(`/disciplines/${selectedDiscipline}/teachers/${selectedTeacher}`);
       message.success('Преподаватель успешно назначен на дисциплину');
       setSelectedDiscipline(null);
       setSelectedTeacher(null);
       fetchData();
     } catch (error: any) {
-    //   console.error('Teacher assignment error:', error.response?.data || error);
       message.error('Ошибка при назначении преподавателя: ' + (error.response?.data?.message || 'Неизвестная ошибка'));
     }
   };
@@ -85,14 +82,12 @@ const DisciplineAssignment: React.FC = () => {
     }
 
     try {
-      const response = await httpClient.put(`/disciplines/${selectedDiscipline}/groups/${selectedGroup}`);
-    //   console.log('Group assignment response:', response);
+      await httpClient.put(`/disciplines/${selectedDiscipline}/groups/${selectedGroup}`);
       message.success('Группа успешно назначена на дисциплину');
       setSelectedDiscipline(null);
       setSelectedGroup(null);
       fetchData();
     } catch (error: any) {
-    //   console.error('Group assignment error:', error.response?.data || error);
       message.error('Ошибка при назначении группы: ' + (error.response?.data?.message || 'Неизвестная ошибка'));
     }
   };

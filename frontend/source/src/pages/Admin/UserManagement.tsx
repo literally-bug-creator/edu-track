@@ -59,14 +59,15 @@ const UserManagement = () => {
   const handleTableChange = (
     pagination: TablePaginationConfig,
     _: any,
-    sorter: SorterResult<User>
+    sorter: SorterResult<User> | SorterResult<User>[]
   ) => {
+    const currentSorter = Array.isArray(sorter) ? sorter[0] : sorter;
     setParams({
       ...params,
       page: pagination.current || 1,
       perPage: pagination.pageSize || 10,
-      sortBy: sorter.field as string,
-      sortOrder: sorter.order === 'descend' ? 'desc' : 'asc'
+      sortBy: currentSorter.field as string,
+      sortOrder: currentSorter.order === 'descend' ? 'desc' : 'asc'
     });
   };
 

@@ -22,6 +22,16 @@ ChartJS.register(
   Legend
 );
 
+interface GradeItem {
+  date: string;
+  value: number;
+}
+
+interface FormattedGradeItem {
+  date: string;
+  value: number;
+}
+
 const AverageGradeChart = () => {
   const [chartData, setChartData] = useState({
     labels: [],
@@ -58,16 +68,16 @@ const AverageGradeChart = () => {
         });
 
         // Форматируем даты для отображения
-        const formattedData = data.items.map(item => ({
+        const formattedData = data.items.map((item: GradeItem): FormattedGradeItem => ({
           date: new Date(item.date).toLocaleDateString('ru-RU', { month: 'long' }),
           value: item.value
         }));
 
         setChartData(prev => ({
-          labels: formattedData.map(item => item.date),
+          labels: formattedData.map((item: FormattedGradeItem) => item.date),
           datasets: [{
             ...prev.datasets[0],
-            data: formattedData.map(item => item.value)
+            data: formattedData.map((item: FormattedGradeItem) => item.value)
           }]
         }));
       } catch (error) {
