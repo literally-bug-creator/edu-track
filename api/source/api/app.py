@@ -12,14 +12,6 @@ from .mark import MarkRouter
 
 app = FastAPI(title="EduTrack API")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-    allow_credentials=True,
-)
-
 app.include_router(AuthRouter)
 app.include_router(UserRouter)
 app.include_router(StudentRouter)
@@ -29,3 +21,12 @@ app.include_router(UnitRouter)
 app.include_router(TrackRouter)
 app.include_router(DisciplineRouter)
 app.include_router(GroupRouter)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
+)

@@ -1,4 +1,4 @@
-const API_URL = 'http://api:8000';
+const API_URL = 'http://localhost:8001';
 
 interface LoginResponse {
   access_token: string;
