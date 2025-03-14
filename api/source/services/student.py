@@ -206,8 +206,8 @@ class StudentService:
         )
 
         date_marks = defaultdict(list)
-        for mark_date, mark_type in marks:
-            date_marks[mark_date].append(mark_type)
+        for mark in marks:
+            date_marks[mark.date].append(mark.type)
 
         average_marks_per_date = []
         for mark_date, marks_list in date_marks.items():
