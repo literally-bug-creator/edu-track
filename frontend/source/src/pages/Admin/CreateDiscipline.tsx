@@ -1,169 +1,210 @@
 import { Card, Form, Input, Select, Button, Table, message } from 'antd';
 import { useState, useEffect } from 'react';
-import type { TableColumnsType } from 'antd';
+import type { TableColumnsType, TablePaginationConfig } from 'antd';
 import httpClient from '../../api/httpClient';
 
-interface Teacher {
-  id: string;
+interface Unit {
+  id: number;
   name: string;
-  department: string;
 }
 
-interface Group {
-  id: string;
+interface Discipline {
+  id: number;
   name: string;
-  course: string;
+  track_id: number;
+  course_number: number;
+  semester_number: number;
+}
+
+interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+}
+
+interface CreateDisciplineRequest {
+  name: string;
+  track_id: number;
+  course_number: number;
+  semester_number: number;
 }
 
 const CreateDiscipline = () => {
-  const [selectedTeachers, setSelectedTeachers] = useState<string[]>([]);
-  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [groups, setGroups] = useState<Group[]>([]);
+  const [units, setUnits] = useState<Unit[]>([]);
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
   const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0
+  });
+
   const [form] = Form.useForm();
+  const [availableSemesters, setAvailableSemesters] = useState<number[]>([]);
 
-  const teacherColumns: TableColumnsType<Teacher> = [
-    { title: 'ФИО', dataIndex: 'name', key: 'name' },
-    { title: 'Кафедра', dataIndex: 'department', key: 'department' },
-  ];
-
-  const groupColumns: TableColumnsType<Group> = [
-    { title: 'Название группы', dataIndex: 'name', key: 'name' },
-    { title: 'Курс', dataIndex: 'course', key: 'course' },
-  ];
-
-  useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const { data } = await httpClient.get('/teachers');
-        setTeachers(data);
-      } catch (error) {
-        console.error('Error fetching teachers:', error);
-        message.error('Ошибка при загрузке списка преподавателей');
-      }
-    };
-
-    const fetchGroups = async () => {
-      try {
-        const { data } = await httpClient.get('/groups');
-        setGroups(data);
-      } catch (error) {
-        console.error('Error fetching groups:', error);
-        message.error('Ошибка при загрузке списка групп');
-      }
-    };
-
-    fetchTeachers();
-    fetchGroups();
-  }, []);
-
-  const handleSubmit = async (values: any) => {
-    setLoading(true);
+  const fetchDisciplines = async (
+    page: number = 1,
+    perPage: number = 10,
+    sortBy?: string,
+    sortOrder?: string
+  ) => {
     try {
-      const disciplineData = {
-        ...values,
-        teachers: selectedTeachers,
-        groups: selectedGroups,
-      };
+      setLoading(true);
+      const params = new URLSearchParams({
+        page: String(page),
+        perPage: String(perPage),
+        ...(sortBy && { sortBy }),
+        ...(sortOrder && { sortOrder })
+      });
 
-      await httpClient.post('/api/disciplines', disciplineData);
-      
-      message.success('Дисциплина успешно создана');
-      form.resetFields();
-      setSelectedTeachers([]);
-      setSelectedGroups([]);
+      const { data } = await httpClient.get(`/disciplines?${params}`);
+      setDisciplines(data.items);
+      setPagination(prev => ({ ...prev, total: data.total }));
     } catch (error) {
-      console.error('Error creating discipline:', error);
-      message.error('Ошибка при создании дисциплины');
+      message.error('Ошибка при загрузке дисциплин');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        // Загрузка подразделений
+        const { data } = await httpClient.get('/units');
+        setUnits(data.items);
+        
+        // Загрузка дисциплин
+        fetchDisciplines();
+      } catch (error) {
+        message.error('Ошибка при загрузке данных');
+      }
+    };
+
+    loadInitialData();
+  }, []);
+
+  const handleTableChange = (pagination: TablePaginationConfig, filters: any, sorter: any) => {
+    fetchDisciplines(
+      pagination.current,
+      pagination.pageSize,
+      sorter.field,
+      sorter.order
+    );
+  };
+
+  const disciplineColumns: TableColumnsType<Discipline> = [
+    { 
+      title: 'Название',
+      dataIndex: 'name',
+      sorter: true
+    },
+    {
+      title: 'Курс',
+      dataIndex: 'course_number',
+      sorter: true
+    },
+    {
+      title: 'Семестр',
+      dataIndex: 'semester_number',
+      sorter: true
+    }
+  ];
+
+  const courseNumbers = [1, 2, 3, 4];
+  const semesterNumbers = [1, 2];
+
+  // Функция для обновления доступных семестров при выборе курса
+  const updateAvailableSemesters = (courseNumber: number) => {
+    setAvailableSemesters([1, 2]);
+    // Сбрасываем выбранный семестр если он не входит в новый диапазон
+    form.setFieldValue('semester_number', undefined);
+  };
+
+  const onFinish = async (values: any) => {
+    try {
+      await httpClient.put('/disciplines', values);
+      message.success('Дисциплина успешно создана');
+      form.resetFields();
+      fetchDisciplines(); // Обновляем список после создания
+    } catch (error) {
+      message.error('Ошибка при создании дисциплины');
+    }
+  };
+
   return (
     <div style={{ padding: 20 }}>
-      <Card title="Создание новой дисциплины">
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-        >
+      <Card title="Создание дисциплины">
+        <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item
-            name="name"
             label="Название дисциплины"
+            name="name"
             rules={[{ required: true, message: 'Введите название дисциплины' }]}
           >
-            <Input placeholder="Например: Математический анализ" />
+            <Input />
           </Form.Item>
 
           <Form.Item
-            name="department"
             label="Подразделение"
+            name="track_id"
             rules={[{ required: true, message: 'Выберите подразделение' }]}
           >
-            <Select
-              placeholder="Выберите подразделение"
-              options={[
-                { value: 'dept1', label: 'Кафедра 1' },
-                { value: 'dept2', label: 'Кафедра 2' },
-              ]}
-            />
+            <Select placeholder="Выберите подразделение">
+              {units.map(unit => (
+                <Select.Option key={unit.id} value={unit.id}>
+                  {unit.name}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
 
           <Form.Item
-            name="semester"
-            label="Семестр"
-            rules={[{ required: true, message: 'Выберите семестр' }]}
+            label="Номер курса"
+            name="course_number"
+            rules={[{ required: true, message: 'Выберите номер курса' }]}
           >
-            <Select
-              placeholder="Выберите семестр"
-              options={[
-                { value: '1', label: '1 семестр' },
-                { value: '2', label: '2 семестр' },
-              ]}
-            />
+            <Select 
+              placeholder="Выберите номер курса"
+              onChange={(value) => updateAvailableSemesters(value)}
+            >
+              {courseNumbers.map(num => (
+                <Select.Option key={num} value={num}>
+                  {num} курс
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Номер семестра"
+            name="semester_number"
+            rules={[{ required: true, message: 'Выберите номер семестра' }]}
+          >
+            <Select placeholder="Выберите номер семестра">
+              {availableSemesters.map(num => (
+                <Select.Option key={num} value={num}>
+                  {num} семестр
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Создать
+            </Button>
           </Form.Item>
         </Form>
       </Card>
 
-      <Card title="Назначение преподавателей" style={{ marginTop: 16 }}>
+      <Card title="Список дисциплин" style={{ marginTop: 16 }}>
         <Table
-          rowSelection={{
-            type: 'checkbox',
-            selectedRowKeys: selectedTeachers,
-            onChange: (selectedRowKeys) => {
-              setSelectedTeachers(selectedRowKeys as string[]);
-            },
-          }}
-          columns={teacherColumns}
-          dataSource={teachers}
+          columns={disciplineColumns}
+          dataSource={disciplines}
           rowKey="id"
-        />
-      </Card>
-
-      <Card title="Назначение групп" style={{ marginTop: 16 }}>
-        <Table
-          rowSelection={{
-            type: 'checkbox',
-            selectedRowKeys: selectedGroups,
-            onChange: (selectedRowKeys) => {
-              setSelectedGroups(selectedRowKeys as string[]);
-            },
-          }}
-          columns={groupColumns}
-          dataSource={groups}
-          rowKey="id"
-        />
-
-        <Button
-          type="primary"
-          onClick={() => form.submit()}
-          style={{ marginTop: 16 }}
+          pagination={pagination}
+          onChange={handleTableChange}
           loading={loading}
-        >
-          Создать дисциплину
-        </Button>
+        />
       </Card>
     </div>
   );

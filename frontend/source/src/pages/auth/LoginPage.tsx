@@ -29,9 +29,9 @@ const LoginPage = () => {
       
       // Сразу перенаправляем на нужную страницу
       if (userInfo.role === 0) {
-        navigate('/admin/dashboard', { replace: true });
+        navigate('/admin/users', { replace: true });
       } else if (userInfo.role === 1) {
-        navigate('/teacher/dashboard', { replace: true });
+        navigate('/teacher/grade-assignment', { replace: true });
       } else {
         navigate('/student/dashboard', { replace: true });
       }

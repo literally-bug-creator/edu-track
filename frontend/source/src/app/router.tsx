@@ -7,16 +7,16 @@ import Marks from "../pages/Student/Marks";
 import Dashboard from "../pages/Student/Dashboard";
 import StudentLayout from "../layouts/StudentLayout";
 import TeacherLayout from "../layouts/TeacherLayout";
-import GradeAssignment from "../pages/Teacher/GradeAssignment";
-import TeacherDashboard from "../pages/Teacher/Dashboard";
+import GradeAssignment from "../pages/Teacher/GradeAssignment"; // удалить импорт TeacherDashboard
 import AdminLayout from "../layouts/AdminLayout";
-import AdminDashboard from "../pages/Admin/Dashboard";
 import TeacherRequests from "../pages/Admin/TeacherRequests";
 import CreateGroup from "../pages/Admin/CreateGroup";
 import CreateDiscipline from "../pages/Admin/CreateDiscipline";
 import UserManagement from "../pages/Admin/UserManagement";
 import CreateTrack from "../pages/Admin/CreateTrack";
 import CreateUnit from "../pages/Admin/CreateUnit";
+import DisciplineAssignment from "../pages/Admin/DisciplineAssignment";
+import StudentAssignment from '../pages/Admin/StudentAssignment';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -124,10 +124,10 @@ const RoleRoute = ({ children, allowedRole }: RoleRouteProps) => {
           // Перенаправляем пользователя на его домашнюю страницу
           switch (user.role) {
             case 0:
-              navigate('/admin/dashboard', { replace: true });
+              navigate('/admin/users', { replace: true });
               break;
             case 1:
-              navigate('/teacher/dashboard', { replace: true });
+              navigate('/teacher/grade-assignment', { replace: true }); // изменено с dashboard
               break;
             default:
               navigate('/student/dashboard', { replace: true });
@@ -157,6 +157,7 @@ const RoleRoute = ({ children, allowedRole }: RoleRouteProps) => {
 const AuthRedirect = ({ children }: { children: React.ReactNode }) => {
   const [isAuth, setIsAuth] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<number | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -168,6 +169,10 @@ const AuthRedirect = ({ children }: { children: React.ReactNode }) => {
         }
         
         const auth = await validateToken();
+        if (auth) {
+          const user = await getCurrentUser();
+          setUserRole(user.role);
+        }
         setIsAuth(auth);
       } catch {
         setIsAuth(false);
@@ -183,9 +188,15 @@ const AuthRedirect = ({ children }: { children: React.ReactNode }) => {
     return <div>Загрузка...</div>;
   }
 
-  if (isAuth) {
-    // Если пользователь авторизован, перенаправляем его на соответствующую страницу
-    return <Navigate to="/student/dashboard" replace />;
+  if (isAuth && userRole !== null) {
+    switch (userRole) {
+      case 0:
+        return <Navigate to="/admin/users" replace />;
+      case 1:
+        return <Navigate to="/teacher/grade-assignment" replace />;
+      default:
+        return <Navigate to="/student/dashboard" replace />;
+    }
   }
 
   return <>{children}</>;
@@ -236,7 +247,6 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { path: 'dashboard', element: <TeacherDashboard /> },
       { path: 'grade-assignment', element: <GradeAssignment /> },
     ],
   },
@@ -250,13 +260,14 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { path: 'dashboard', element: <AdminDashboard /> },
       { path: 'requests', element: <TeacherRequests /> },
       { path: 'users', element: <UserManagement /> },
       { path: 'groups', element: <CreateGroup /> },
       { path: 'disciplines', element: <CreateDiscipline /> },
       { path: 'tracks', element: <CreateTrack /> },
       { path: 'units', element: <CreateUnit /> },
+      { path: 'discipline-assignment', element: <DisciplineAssignment /> },
+      { path: 'student-assignment', element: <StudentAssignment /> },
     ],
   }
 ]);

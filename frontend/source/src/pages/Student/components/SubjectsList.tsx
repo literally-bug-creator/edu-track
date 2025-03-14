@@ -3,12 +3,9 @@ import { useState, useEffect } from 'react';
 import httpClient from '../../../api/httpClient';
 
 interface SubjectWithMarks {
-  id: number;
-  name: string;
-  track_id: number;
-  course_number: number;
-  semester_number: number;
-  avg_marks: number;
+  discipline_id: number;
+  discipline_name: string;
+  avg_mark: number;
 }
 
 interface SubjectsResponse {
@@ -24,25 +21,15 @@ const SubjectsList = () => {
   const columns = [
     {
       title: 'Предмет',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'discipline_name',
+      key: 'discipline_name',
     },
     {
       title: 'Средний балл',
-      dataIndex: 'avg_marks',
-      key: 'avg_marks',
+      dataIndex: 'avg_mark',
+      key: 'avg_mark',
       render: (value: number) => value.toFixed(2),
-    },
-    {
-      title: 'Курс',
-      dataIndex: 'course_number',
-      key: 'course_number',
-    },
-    {
-      title: 'Семестр',
-      dataIndex: 'semester_number',
-      key: 'semester_number',
-    },
+    }
   ];
 
   useEffect(() => {
@@ -58,7 +45,7 @@ const SubjectsList = () => {
             page: 1,
             perPage: 10,
             sortOrder: 'desc',
-            sortBy: 'avg_marks'
+            sortBy: 'avg_mark'
           }
         });
 
@@ -78,7 +65,7 @@ const SubjectsList = () => {
     <Table 
       columns={columns} 
       dataSource={subjects} 
-      rowKey="id"
+      rowKey="discipline_id"
       loading={loading}
       pagination={{
         total,

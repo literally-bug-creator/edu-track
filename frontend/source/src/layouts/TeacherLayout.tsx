@@ -1,6 +1,6 @@
 import { Layout, Menu, Button } from 'antd';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import { BookOutlined, LogoutOutlined, DashboardOutlined } from '@ant-design/icons';
+import { BookOutlined, LogoutOutlined } from '@ant-design/icons';
 import { logout } from '../api/auth';
 
 const { Content, Header } = Layout;
@@ -10,11 +10,6 @@ const TeacherLayout = () => {
   const location = useLocation();
 
   const menuItems = [
-    {
-      key: '/teacher/dashboard',
-      icon: <DashboardOutlined />,
-      label: 'Дашборд',
-    },
     {
       key: '/teacher/grade-assignment',
       icon: <BookOutlined />,

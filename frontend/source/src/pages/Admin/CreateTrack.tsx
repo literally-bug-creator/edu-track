@@ -79,11 +79,9 @@ const CreateTrack = () => {
   const handleSubmit = async (values: { name: string; unit_id: number }) => {
     setLoading(true);
     try {
-      await httpClient.put('/tracks', null, {
-        params: {
-          name: values.name,
-          unit_id: values.unit_id
-        }
+      await httpClient.put('/tracks', {
+        name: values.name,
+        unit_id: values.unit_id
       });
       message.success('Направление успешно создано');
       form.resetFields();

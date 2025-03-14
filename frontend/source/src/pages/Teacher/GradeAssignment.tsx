@@ -1,6 +1,7 @@
 import { Card, Form, Select, InputNumber, Button, Table, message } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { TableColumnsType } from 'antd';
+import httpClient from '../../api/httpClient';
 
 interface Student {
   id: number;
@@ -8,38 +9,157 @@ interface Student {
   grade?: number;
 }
 
+interface Teacher {
+  id: number;
+  username: string;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  role: number;
+  group_id: number;
+}
+
+interface Discipline {
+  id: number;
+  name: string;
+  track_id: number;
+  course_number: number;
+  semester_number: number;
+}
+
+interface Group {
+  id: number;
+  number: string;
+  track_id: number;
+}
+
+interface DisciplinesResponse {
+  items: Discipline[];
+  total: number;
+}
+
+interface StudentsResponse {
+  items: Student[];
+  total: number;
+}
+
+interface GroupDetailResponse {
+  item: Group;
+}
+
+interface StudentResponse {
+  id: number;
+  username: string;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  role: number;
+  group_id: number;
+}
+
+interface StudentsListResponse {
+  items: StudentResponse[];
+  total: number;
+}
+
+interface MarkRequest {
+  discipline_id: number;
+  student_id: number;
+  work_type: number;
+  type: number;
+}
+
 const GradeAssignment = () => {
   const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
+  const [disciplines, setDisciplines] = useState<{ value: number; label: string }[]>([]);
+  const [groups, setGroups] = useState<{ value: number; label: string }[]>([]);
+  const [teacherId, setTeacherId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
   const [form] = Form.useForm();
 
-  // Моковые данные (замените на реальные API-вызовы)
-  const disciplines = [
-    { value: 'math', label: 'Математика' },
-    { value: 'physics', label: 'Физика' },
-    { value: 'programming', label: 'Программирование' },
-  ];
+  useEffect(() => {
+    const fetchTeacherData = async () => {
+      try {
+        const response = await httpClient.get<Teacher>('/auth/jwt/me');
+        setTeacherId(response.data.id);
+      } catch (error) {
+        message.error('Ошибка при получении данных преподавателя');
+      }
+    };
+    fetchTeacherData();
+  }, []);
 
-  const groups = [
-    { value: 'group1', label: 'Группа 101' },
-    { value: 'group2', label: 'Группа 102' },
-    { value: 'group3', label: 'Группа 103' },
-  ];
+  useEffect(() => {
+    const fetchDisciplines = async () => {
+      if (!teacherId) return;
+      
+      try {
+        const response = await httpClient.get<DisciplinesResponse>(`/teachers/${teacherId}/disciplines`, {
+          params: {
+            page: 1,
+            perPage: 100,
+            sortBy: 'name',
+            sortOrder: 'asc'
+          }
+        });
+        
+        setDisciplines(response.data.items.map(discipline => ({
+          value: discipline.id,
+          label: discipline.name
+        })));
+      } catch (error) {
+        message.error('Ошибка при загрузке дисциплин');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (teacherId) {
+      fetchDisciplines();
+    }
+  }, [teacherId]);
+
+  const handleDisciplineChange = async (disciplineId: number) => {
+    try {
+      const response = await httpClient.get<{items: Group[], total: number}>(`/disciplines/${disciplineId}/groups`);
+      setGroups(response.data.items.map(group => ({
+        value: group.id,
+        label: group.number
+      })));
+    } catch (error) {
+      message.error('Ошибка при загрузке групп');
+    }
+  };
 
   const workTypes = [
-    { value: 'homework', label: 'Домашняя работа' },
-    { value: 'test', label: 'Тест' },
-    { value: 'exam', label: 'Экзамен' },
+    { value: 0, label: 'Домашняя работа' },
+    { value: 1, label: 'Практическая работа' },
+    { value: 2, label: 'Лабораторная работа' },
+    { value: 3, label: 'Контрольная работа' },
+    { value: 4, label: 'Курсовая работа' },
   ];
 
-  // Имитация загрузки студентов при выборе группы
-  const handleGroupChange = (groupId: string) => {
-    // Здесь должен быть API-вызов для получения студентов группы
-    const mockStudents: Student[] = [
-      { id: 1, fullName: 'Иванов Иван Иванович' },
-      { id: 2, fullName: 'Петров Петр Петрович' },
-      { id: 3, fullName: 'Сидорова Анна Павловна' },
-    ];
-    setSelectedStudents(mockStudents);
+  const handleGroupChange = async (groupId: string) => {
+    if (!teacherId) return;
+    
+    try {
+      const response = await httpClient.get<StudentsListResponse>(`/teachers/${teacherId}/groups/${groupId}/students`, {
+        params: {
+          page: 1,
+          perPage: 100,
+          sortBy: 'last_name',
+          sortOrder: 'asc'
+        }
+      });
+      
+      setSelectedStudents(response.data.items.map(student => ({
+        id: student.id,
+        fullName: `${student.last_name} ${student.first_name} ${student.middle_name}`,
+      })));
+    } catch (error) {
+      message.error('Ошибка при загрузке списка студентов');
+      setSelectedStudents([]);
+    }
   };
 
   const columns: TableColumnsType<Student> = [
@@ -67,18 +187,28 @@ const GradeAssignment = () => {
   ];
 
   const handleSubmit = async () => {
-    const formValues = await form.validateFields();
-    const gradesToSubmit = selectedStudents
-      .filter(s => s.grade)
-      .map(s => ({
-        studentId: s.id,
-        grade: s.grade,
-        ...formValues
-      }));
-    
-    // Здесь должен быть API-вызов для сохранения оценок
-    console.log('Отправка оценок:', gradesToSubmit);
-    message.success('Оценки успешно выставлены');
+    try {
+      const formValues = await form.validateFields();
+      const promises = selectedStudents
+        .filter(s => s.grade)
+        .map(student => {
+          const markData: MarkRequest = {
+            discipline_id: formValues.discipline,
+            student_id: student.id,
+            type: student.grade || 2,
+            work_type: formValues.workType,
+          };
+          return httpClient.put('/marks', markData);
+        });
+
+      await Promise.all(promises);
+      message.success('Оценки успешно выставлены');
+      
+      setSelectedStudents([]);
+      form.resetFields();
+    } catch (error) {
+      message.error('Ошибка при сохранении оценок');
+    }
   };
 
   return (
@@ -97,6 +227,8 @@ const GradeAssignment = () => {
             <Select
               options={disciplines}
               placeholder="Выберите дисциплину"
+              loading={loading}
+              onChange={handleDisciplineChange}
             />
           </Form.Item>
 

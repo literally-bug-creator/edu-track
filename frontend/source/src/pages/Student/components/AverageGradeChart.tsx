@@ -46,6 +46,7 @@ const AverageGradeChart = () => {
 
         // Получаем данные за последние 6 месяцев
         const endDate = new Date();
+        endDate.setDate(endDate.getDate() + 1); // Добавляем один день к конечной дате
         const startDate = new Date();
         startDate.setMonth(startDate.getMonth() - 6);
 

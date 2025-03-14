@@ -37,10 +37,8 @@ const CreateUnit = () => {
   const handleSubmit = async (values: { name: string }) => {
     setLoading(true);
     try {
-      await httpClient.put('/units', null, {
-        params: {
-          name: values.name
-        }
+      await httpClient.put('/units', {
+        name: values.name
       });
       message.success('Подразделение успешно создано');
       form.resetFields();

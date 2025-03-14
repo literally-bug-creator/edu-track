@@ -1,5 +1,5 @@
 import { Layout, Menu, Button } from 'antd';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { useNavigate, useLocation, Outlet, Link } from 'react-router-dom';
 import { 
   DashboardOutlined, 
   UserOutlined, 
@@ -18,11 +18,6 @@ const AdminLayout = () => {
   const location = useLocation();
 
   const menuItems = [
-    {
-      key: '/admin/dashboard',
-      icon: <DashboardOutlined />,
-      label: 'Дашборд',
-    },
     {
       key: '/admin/users',
       icon: <UserOutlined />,
@@ -47,6 +42,16 @@ const AdminLayout = () => {
       key: '/admin/disciplines',
       icon: <BookOutlined />,
       label: 'Дисциплины',
+    },
+    {
+      key: 'discipline-assignment',
+      icon: <BookOutlined />,
+      label: <Link to="discipline-assignment">Назначение дисциплин</Link>,
+    },
+    {
+      key: '/admin/student-assignment',
+      icon: <TeamOutlined />,
+      label: 'Назначение студентов'
     },
   ];
 

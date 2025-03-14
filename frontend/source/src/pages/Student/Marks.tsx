@@ -15,6 +15,7 @@ interface Mark {
   work_type: number;
   type: number;
   date: string;
+  discipline_name: string; // добавляем поле для названия дисциплины
 }
 
 interface MarksParams {
@@ -33,6 +34,31 @@ interface DisciplinesParams {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }
+
+enum WorkType {
+  HOMEWORK = 0,
+  PRACTICAL_WORK = 1,
+  LABORATORY_WORK = 2,
+  VERIFICATION_WORK = 3,
+  COURSE_WORK = 4
+}
+
+const getWorkTypeName = (type: number): string => {
+  switch (type) {
+    case WorkType.HOMEWORK:
+      return 'Домашняя работа';
+    case WorkType.PRACTICAL_WORK:
+      return 'Практическая работа';
+    case WorkType.LABORATORY_WORK:
+      return 'Лабораторная работа';
+    case WorkType.VERIFICATION_WORK:
+      return 'Контрольная работа';
+    case WorkType.COURSE_WORK:
+      return 'Курсовая работа';
+    default:
+      return 'Неизвестный тип работы';
+  }
+};
 
 const Marks = () => {
   const [selectedDiscipline, setSelectedDiscipline] = useState<number>();
@@ -76,16 +102,25 @@ const Marks = () => {
   }, []);
 
   const workTypes = [
-    { value: 'homework', label: 'Домашняя работа' },
-    { value: 'test', label: 'Тест' },
-    { value: 'exam', label: 'Экзамен' },
+    { value: WorkType.HOMEWORK, label: 'Домашняя работа' },
+    { value: WorkType.PRACTICAL_WORK, label: 'Практическая работа' },
+    { value: WorkType.LABORATORY_WORK, label: 'Лабораторная работа' },
+    { value: WorkType.VERIFICATION_WORK, label: 'Контрольная работа' },
+    { value: WorkType.COURSE_WORK, label: 'Курсовая работа' },
   ];
 
   const columns: TableColumnsType<Mark> = [
     {
+      title: 'Дисциплина',
+      dataIndex: 'discipline_name',
+      key: 'discipline_name',
+      sorter: true
+    },
+    {
       title: 'Тип работы',
       dataIndex: 'work_type',
       key: 'work_type',
+      render: (type: number) => getWorkTypeName(type)
     },
     {
       title: 'Оценка',

@@ -80,15 +80,13 @@ const CreateGroup = () => {
   const handleSubmit = async (values: { number: string; track_id: number }) => {
     setLoading(true);
     try {
-      await httpClient.put('/groups', null, {
-        params: {
-          number: values.number,
-          track_id: values.track_id
-        }
+      await httpClient.put('/groups', {
+        number: values.number,
+        track_id: values.track_id
       });
       message.success('Группа успешно создана');
       form.resetFields();
-      await fetchExistingGroups(); // Перезагружаем список групп после создания новой
+      await fetchExistingGroups();
     } catch (error) {
       console.error('Error creating group:', error);
       message.error('Ошибка при создании группы');
