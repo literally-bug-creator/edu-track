@@ -141,15 +141,12 @@ class StudentService:
         if not (student := await self.repo.filter_one(id=pms.id)):
             return responses.ListDisciplines(items=[], total=0)
 
-        items, total = await self.disc_group_repo.list(
-            params=pms,
-            group_id=student.group_id,
-        )
+        items = await self.repo.get_disciplines(student.id)
         return responses.ListDisciplines(
             items=[
                 Discipline.model_validate(obj, from_attributes=True) for obj in items
             ],
-            total=total,
+            total=len(items),
         )
 
     async def list_disciplines_marks_avg(
