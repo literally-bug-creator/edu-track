@@ -204,13 +204,10 @@ class StudentService:
             pms.date_from,
             pms.date_to,
         )
-        import logging
-        logging.error(marks)
 
         date_marks = defaultdict(list)
         for mark in marks:
-            logging.error(mark)
-            date_marks[mark.date].append(mark.type)
+            date_marks[mark[0].date].append(mark[0].type)
 
         average_marks_per_date = []
         for mark_date, marks_list in date_marks.items():
