@@ -10,7 +10,8 @@ class Discipline(BaseModel):
     semester_number: SemesterNumber
 
 
-class DisciplineMarksAvg(Discipline):
+class DisciplineMarksAvg(BaseModel):
+    discipline_id: int
     avg_marks: float
 
 
